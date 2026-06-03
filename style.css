@@ -124,7 +124,8 @@ nav a:hover {
 
 .eyebrow,
 .section-label {
-  color: var(--accent);
+  color: #04B486;
+  opacity: 0.9;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.14em;
