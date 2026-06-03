@@ -420,17 +420,6 @@ h1 {
     box-shadow: 0 24px 60px var(--shadow);
 }
 
-.technology-card img {
-
-    width: 220px;
-
-    height: 120px;
-
-    object-fit: contain;
-
-    margin-bottom: 24px;
-}
-
 .technology-card h3 {
 
     font-size: 1.6rem;
