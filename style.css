@@ -56,14 +56,15 @@ a {
   z-index: 100;
 }
 
-.logo {
-  font-size: 1.4rem;
-  font-weight: 700;
-  letter-spacing: -0.04em;
+.logo{
+    font-family: "Rostex Oblique";
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
 }
 
-.logo span {
-  color: var(--accent);
+.logo span{
+    color: #04B486;
 }
 
 nav {
