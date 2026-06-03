@@ -439,11 +439,16 @@ h1 {
   gap: 16px;
 }
 
-.list-item {
-  display: grid;
-  grid-template-columns: 140px 1fr;
-  gap: 24px;
-  align-items: center;
+.list-item a {
+
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+
+.list-item a:hover {
+    opacity: 0.8;
 }
 
 .list-item span {
