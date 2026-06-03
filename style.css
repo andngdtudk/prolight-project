@@ -411,6 +411,18 @@ h1 {
     min-height: 450px;
 }
 
+.tech-logo-container img.tech-logo {
+  display: block;
+  width: auto;
+  height: auto;
+
+  max-width: 240px;
+  max-height: 130px;
+
+  object-fit: contain;
+  margin: 0 auto;
+}
+
 .technology-card:hover {
 
     border-color: var(--accent);
