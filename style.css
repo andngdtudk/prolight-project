@@ -72,14 +72,20 @@ a {
 }
 
 .logo {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
 }
 
 .logo img {
-    height: clamp(42px, 5vw, 60px);
-    width: auto;
-    object-fit: contain;
+  height: clamp(42px, 5vw, 68px);
+  width: auto;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.logo:hover img {
+  transform: scale(1.03);
 }
 
 nav {
