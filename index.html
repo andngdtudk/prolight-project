@@ -1,1 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProLight | Proactive AI for Intelligent Traffic Control</title>
+  <link rel="stylesheet" href="style.css" />
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <header class="navbar">
+    <div class="logo">Pro<span>Light</span></div>
+    <nav>
+      <a href="#vision">Vision</a>
+      <a href="#systems">Systems</a>
+      <a href="#publications">Publications</a>
+      <a href="#team">Team</a>
+      <button id="theme-toggle">Dark</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <p class="eyebrow">AI · Traffic Control · Digital Mobility</p>
+        <h1>Proactive AI for Intelligent Traffic Control</h1>
+        <p class="subtitle">
+          ProLight develops next-generation traffic control systems that anticipate disruptions,
+          predict network dynamics, and optimize urban mobility through simulation, graph neural
+          networks, model predictive control, and search-based planning.
+        </p>
+
+        <div class="hero-buttons">
+          <a href="#systems" class="btn primary">Explore Project</a>
+          <a href="#publications" class="btn secondary">View Research</a>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="network-card">
+          <div class="node n1"></div>
+          <div class="node n2"></div>
+          <div class="node n3"></div>
+          <div class="node n4"></div>
+          <div class="node n5"></div>
+          <div class="node n6"></div>
+          <div class="line l1"></div>
+          <div class="line l2"></div>
+          <div class="line l3"></div>
+          <div class="line l4"></div>
+          <div class="line l5"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="vision" class="section">
+      <p class="section-label">Vision</p>
+      <h2>From reactive traffic control to proactive network intelligence.</h2>
+      <p class="section-text">
+        Urban traffic networks are complex, uncertain, and vulnerable to disruptions.
+        ProLight investigates how AI systems can predict future traffic states, reason over
+        network-level interactions, and make robust control decisions before congestion propagates.
+      </p>
+
+      <div class="three-words">
+        <div>Predict</div>
+        <div>Plan</div>
+        <div>Control</div>
+      </div>
+    </section>
+
+    <section id="systems" class="section">
+      <p class="section-label">Research Systems</p>
+      <h2>Core components of ProLight</h2>
+
+      <div class="cards">
+        <article class="card">
+          <h3>T-REX</h3>
+          <p>
+            A benchmark environment for evaluating traffic signal control algorithms under
+            incidents, uncertainty, and network-level disruptions.
+          </p>
+        </article>
+
+        <article class="card">
+          <h3>GNN-MPC</h3>
+          <p>
+            A graph neural network model predictive control framework for proactive traffic
+            signal optimization across urban networks.
+          </p>
+        </article>
+
+        <article class="card">
+          <h3>GNN-AlphaZero</h3>
+          <p>
+            A search-based planning approach combining graph learning, simulation, and
+            AlphaZero-style decision-making for traffic control.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section id="publications" class="section">
+      <p class="section-label">Research Output</p>
+      <h2>Publications, code, and datasets</h2>
+
+      <div class="list">
+        <div class="list-item">
+          <span>Paper</span>
+          <p>Robustness of Reinforcement Learning-Based Traffic Signal Control under Incidents.</p>
+        </div>
+        <div class="list-item">
+          <span>Framework</span>
+          <p>T-REX: A benchmark environment for traffic signal control under incidents.</p>
+        </div>
+        <div class="list-item">
+          <span>Code</span>
+          <p>Open-source repositories will be linked here.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="team" class="section">
+      <p class="section-label">Team</p>
+      <h2>Project team</h2>
+
+      <div class="team-card">
+        <h3>Dang Viet Anh Nguyen</h3>
+        <p>PhD Student · Machine Learning for Smart Mobility · Technical University of Denmark</p>
+        <p class="muted">Supervisors and collaborators can be added here.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 ProLight Research Project. Built with GitHub Pages.</p>
+  </footer>
+
+  <script>
+    const toggle = document.getElementById("theme-toggle");
+    const body = document.body;
+
+    toggle.addEventListener("click", () => {
+      body.classList.toggle("dark");
+      toggle.textContent = body.classList.contains("dark") ? "Light" : "Dark";
+    });
+  </script>
+</body>
+</html>
