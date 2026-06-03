@@ -56,14 +56,18 @@ a {
   z-index: 100;
 }
 
-.logo{
-    font-family: "Rostex Oblique";
-    font-size: 1.6rem;
+.logo {
+    font-family: 'Rostex', sans-serif;
+    font-style: oblique;
     font-weight: 700;
-    letter-spacing: 0.05em;
+
+    font-size: 1.8rem;
+    letter-spacing: 0.04em;
+
+    color: var(--text);
 }
 
-.logo span{
+.logo span {
     color: #04B486;
 }
 
