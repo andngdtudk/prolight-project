@@ -487,6 +487,8 @@ body.dark .tech-logo-dark {
     opacity: 1;
 
     transform: scale(1.08);
+
+    filter: drop-shadow(0 0 12px rgba(4,180,134,0.25));
 }
 
 .cards {
