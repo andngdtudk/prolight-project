@@ -86,12 +86,18 @@ a {
 }
 
 
-body.dark .nav-logo-light {
-    display: none;
+.nav-logo-light,
+.nav-logo-dark {
+    height: 35px;
+    width: auto;
 }
 
-body.dark .nav-logo-dark {
+.nav-logo-light {
     display: block;
+}
+
+.nav-logo-dark {
+    display: none;
 }
 
 
