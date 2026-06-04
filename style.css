@@ -445,72 +445,58 @@ body.dark .tech-logo-dark {
 }
 
 .institution-logo {
+  width: 220px;
+  height: 90px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
+  text-decoration: none;
+  transition: transform 0.25s ease;
 }
 
 .institution-logo img {
-
-  position: absolute;
-
   max-width: 220px;
   max-height: 90px;
-
   width: auto;
   height: auto;
-
   object-fit: contain;
 
-  transition:
-    opacity 0.25s ease,
-    filter 0.25s ease,
-    transform 0.25s ease;
+  transition: opacity 0.25s ease, filter 0.25s ease;
 }
 
 .inst-logo-light {
-
   display: block;
-
   filter: grayscale(100%);
-
   opacity: 0.65;
 }
 
 .inst-logo-dark {
-
   display: none;
 }
 
 .institution-logo:hover {
-
   transform: scale(1.08);
 }
 
 .institution-logo:hover .inst-logo-light {
-
   filter: grayscale(0%);
-
   opacity: 1;
 }
 
 body.dark .inst-logo-light {
-
   display: none;
 }
 
 body.dark .inst-logo-dark {
-
   display: block;
-
   opacity: 0.85;
 }
 
 body.dark .institution-logo:hover .inst-logo-dark {
-
   opacity: 1;
 }
-
 
 
 .cards {
