@@ -234,6 +234,7 @@ body.dark .hero-overlay {
   color: #04B486;
   opacity: 0.9;
   font-weight: 600;
+  font-family: "General Sans", sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-size: 0.95rem;
