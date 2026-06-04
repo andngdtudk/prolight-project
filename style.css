@@ -77,15 +77,6 @@ a {
   text-decoration: none;
 }
 
-.nav-logo-light {
-    display: block;
-}
-
-.nav-logo-dark {
-    display: none;
-}
-
-
 .nav-logo-light,
 .nav-logo-dark {
     height: 20px;
@@ -101,6 +92,10 @@ a {
 }
 
 
+
+body.dark .nav-logo-light { display: none; }
+
+body.dark .nav-logo-dark { display: block; }
 
 
 
