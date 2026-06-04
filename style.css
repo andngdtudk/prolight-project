@@ -101,7 +101,7 @@ body.dark .nav-logo-dark { display: block; }
 } */
 
 .logo img {
-  height: 25px;
+  height: 30px;
   width: auto;
   object-fit: contain;
   transition: transform 0.2s ease;
