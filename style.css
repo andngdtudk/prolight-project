@@ -622,5 +622,15 @@ footer {
         width: 180px;
     }
 
+    .institutions-logos {
+
+    gap: 50px;
+}
+
+.institution-logo img {
+
+    max-width: 170px;
+}
+
 }
 }
