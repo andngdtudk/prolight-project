@@ -453,16 +453,20 @@ body.dark .tech-logo-dark {
 .institution-logo img {
   max-width: 220px;
   max-height: 90px;
+
   width: auto;
   height: auto;
+
   object-fit: contain;
-  opacity: 0.65;
-  filter: grayscale(100%);
+
   transition: 0.25s ease;
 }
 
 .inst-logo-light {
   display: block;
+
+  filter: grayscale(100%);
+  opacity: 0.65;
 }
 
 .inst-logo-dark {
@@ -475,12 +479,16 @@ body.dark .inst-logo-light {
 
 body.dark .inst-logo-dark {
   display: block;
+
+  filter: none;
+  opacity: 0.8;
 }
 
-.institution-logo:hover img {
-  opacity: 1;
-  filter: grayscale(0%);
-  transform: scale(1.08);
+body.dark .inst-logo-dark {
+  display: block;
+
+  filter: brightness(1);
+  opacity: 0.9;
 }
 
 .cards {
