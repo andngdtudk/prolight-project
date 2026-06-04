@@ -77,12 +77,6 @@ a {
   text-decoration: none;
 }
 
-.nav-logo-light,
-.nav-logo-dark {
-    height: 20px;
-    width: auto;
-}
-
 .nav-logo-light {
     display: block;
 }
@@ -99,8 +93,15 @@ body.dark .nav-logo-dark { display: block; }
 
 
 
-.logo img {
+/* .logo img {
   height: clamp(42px, 5vw, 68px);
+  width: auto;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+} */
+
+.logo img {
+  height: 25px;
   width: auto;
   object-fit: contain;
   transition: transform 0.2s ease;
