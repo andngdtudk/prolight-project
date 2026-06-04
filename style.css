@@ -56,7 +56,7 @@ a {
   z-index: 100;
 }
 
-.logo {
+/* .logo {
     font-family: 'Rostex', sans-serif;
     font-style: oblique;
     font-weight: 700;
@@ -69,7 +69,7 @@ a {
 
 .logo span {
     color: #04B486;
-}
+} */
 
 .logo {
   display: flex;
@@ -85,6 +85,12 @@ a {
     display: none;
 }
 
+.nav-logo-light,
+.nav-logo-dark {
+    height: 38px;
+    width: auto;
+}
+
 body.dark .nav-logo-light {
     display: none;
 }
@@ -92,6 +98,8 @@ body.dark .nav-logo-light {
 body.dark .nav-logo-dark {
     display: block;
 }
+
+
 
 
 
