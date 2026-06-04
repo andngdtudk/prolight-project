@@ -451,6 +451,9 @@ body.dark .tech-logo-dark {
 }
 
 .institution-logo img {
+
+  position: absolute;
+
   max-width: 220px;
   max-height: 90px;
 
@@ -459,37 +462,56 @@ body.dark .tech-logo-dark {
 
   object-fit: contain;
 
-  transition: 0.25s ease;
+  transition:
+    opacity 0.25s ease,
+    filter 0.25s ease,
+    transform 0.25s ease;
 }
 
 .inst-logo-light {
+
   display: block;
 
   filter: grayscale(100%);
+
   opacity: 0.65;
 }
 
 .inst-logo-dark {
+
   display: none;
+}
+
+.institution-logo:hover {
+
+  transform: scale(1.08);
+}
+
+.institution-logo:hover .inst-logo-light {
+
+  filter: grayscale(0%);
+
+  opacity: 1;
 }
 
 body.dark .inst-logo-light {
+
   display: none;
 }
 
 body.dark .inst-logo-dark {
+
   display: block;
 
-  filter: none;
-  opacity: 0.8;
+  opacity: 0.85;
 }
 
-body.dark .inst-logo-dark {
-  display: block;
+body.dark .institution-logo:hover .inst-logo-dark {
 
-  filter: brightness(1);
-  opacity: 0.9;
+  opacity: 1;
 }
+
+
 
 .cards {
   margin-top: 48px;
