@@ -31,7 +31,7 @@ html {
 }
 
 body {
-  font-family: "Geist", sans-serif;
+  font-family: "General Sans", sans-serif;
   background: var(--bg);
   color: var(--text);
   transition: background 0.3s ease, color 0.3s ease;
@@ -243,6 +243,20 @@ h1 {
   line-height: 0.95;
   letter-spacing: -0.08em;
   max-width: 900px;
+}
+
+h1,
+h2 {
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.subtitle,
+.section-text,
+.about-card p,
+.technology-card p,
+.list-item p,
+.team-card p {
+  font-family: "General Sans", sans-serif;
 }
 
 .subtitle {
