@@ -155,7 +155,7 @@
       <a href="#institutions">Network</a>
       <a href="#publications">Research</a>
       <a href="#team">Team</a>
-      <button id="theme-toggle">Light</button>
+      <button id="theme-toggle"></button>
     </nav>
   </header>
 
@@ -584,14 +584,16 @@
   const toggle = document.getElementById("theme-toggle");
   const body = document.body;
 
-  toggle.textContent =
-      body.classList.contains("dark") ? "Light" : "Dark";
+  function updateThemeButton() {
+      toggle.textContent =
+          body.classList.contains("dark") ? "☀" : "🌙";
+  }
+
+  updateThemeButton();
 
   toggle.addEventListener("click", () => {
       body.classList.toggle("dark");
-
-      toggle.textContent =
-          body.classList.contains("dark") ? "Light" : "Dark";
+      updateThemeButton();
   });
 </script>
 
