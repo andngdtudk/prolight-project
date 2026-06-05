@@ -778,6 +778,91 @@ footer {
     height: 110px;
   }
 
+  .footer {
+
+  background: #04B486;
+
+  padding: 80px 8% 40px;
+
+  margin-top: 120px;
+}
+
+.footer-grid {
+
+  display: grid;
+
+  grid-template-columns:
+      1.6fr
+      1fr
+      1.2fr
+      1fr
+      1fr
+      1.3fr;
+
+  gap: 50px;
+
+  align-items: start;
+}
+
+  .footer-brand img {
+
+  width: 260px;
+
+  height: auto;
+}
+
+  .footer h4 {
+
+  color: #013220;
+
+  font-size: 1.05rem;
+
+  font-weight: 700;
+
+  margin-bottom: 18px;
+}
+
+  .footer-column p,
+.footer-column a {
+
+  display: block;
+
+  color: white;
+
+  text-decoration: none;
+
+  line-height: 2;
+
+  transition: opacity 0.2s ease;
+}
+
+.footer-column a:hover {
+
+  opacity: 0.75;
+}
+
+  .footer-funder img {
+
+  width: 180px;
+
+  margin-top: 10px;
+
+  height: auto;
+}
+
+  .footer-bottom {
+
+  text-align: center;
+
+  margin-top: 70px;
+
+  color: white;
+
+  opacity: 0.9;
+
+  font-size: 0.95rem;
+}
+
   @media (max-width: 900px) {
 
 
@@ -859,6 +944,30 @@ footer {
 .member-card img {
   max-height: 520px;
 }
+
+    .footer-grid {
+
+  grid-template-columns: 1fr;
+
+  gap: 40px;
+}
+
+.footer-brand {
+
+  text-align: center;
+}
+
+.footer-funder {
+
+  text-align: center;
+}
+
+.footer-bottom {
+
+  margin-top: 50px;
+}
+
+    
 
 }
 }
