@@ -820,7 +820,47 @@ body.dark .institution-logo:hover .inst-logo-dark {
 
   font-size: 0.95rem;
 }
+.cookie-banner {
+  position: fixed;
+  left: 24px;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9999;
 
+  max-width: 520px;
+  padding: 18px 20px;
+
+  background: var(--surface);
+  color: var(--text);
+
+  border: 1px solid var(--border);
+  border-radius: 18px;
+
+  box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.cookie-banner p {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.cookie-banner button {
+  border: none;
+  background: var(--accent);
+  color: white;
+
+  padding: 10px 16px;
+  border-radius: 999px;
+
+  cursor: pointer;
+  font-weight: 600;
+}
 
 
 @media (max-width: 900px) {
