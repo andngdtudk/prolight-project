@@ -669,6 +669,63 @@ body.dark .institution-logo:hover .inst-logo-dark {
   max-width: 720px;
 }
 
+.team-section {
+  padding-top: 120px;
+}
+
+.team-grid {
+  margin-top: 70px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 34px;
+}
+
+.member-card {
+  text-align: center;
+}
+
+.member-card a {
+  display: block;
+  border-radius: 28px;
+  overflow: hidden;
+  background: var(--surface);
+  margin-bottom: 24px;
+}
+
+.member-card img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  display: block;
+
+  filter: grayscale(100%);
+  transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+.member-card:hover img {
+  filter: grayscale(0%);
+  transform: scale(1.04);
+}
+
+.member-card h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+
+.member-card p {
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.member-card span {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
 .muted {
   margin-top: 10px;
   color: var(--muted);
@@ -792,6 +849,15 @@ footer {
 .institution-logo img {
 
     max-width: 170px;
+}
+
+    .team-grid {
+  grid-template-columns: 1fr;
+  gap: 42px;
+}
+
+.member-card img {
+  max-height: 520px;
 }
 
 }
