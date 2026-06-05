@@ -581,14 +581,19 @@
 </footer>
 
   <script>
-    const toggle = document.getElementById("theme-toggle");
-    const body = document.body;
+  const toggle = document.getElementById("theme-toggle");
+  const body = document.body;
 
-    toggle.addEventListener("click", () => {
+  toggle.textContent =
+      body.classList.contains("dark") ? "Light" : "Dark";
+
+  toggle.addEventListener("click", () => {
       body.classList.toggle("dark");
-      toggle.textContent = body.classList.contains("dark") ? "Light" : "Dark";
-    });
-  </script>
+
+      toggle.textContent =
+          body.classList.contains("dark") ? "Light" : "Dark";
+  });
+</script>
 
 
   <script>
