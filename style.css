@@ -447,6 +447,26 @@ h2 {
   margin: 0 auto;
 }
 
+
+.typing-heading span {
+  border-right: 3px solid transparent;
+}
+
+.typing-heading.typing-active .typing-cursor {
+  border-right-color: #04B486;
+  animation: cursor-blink 0.8s infinite;
+}
+
+@keyframes cursor-blink {
+  0%, 50% {
+    border-color: #04B486;
+  }
+
+  51%, 100% {
+    border-color: transparent;
+  }
+}
+
 .technologies-section {
   padding-top: 120px;
 }
