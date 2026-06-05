@@ -457,6 +457,10 @@ h2 {
   animation: cursor-blink 0.8s infinite;
 }
 
+#typing-line-2 {
+  color: var(--accent);
+}
+
 @keyframes cursor-blink {
   0%, 50% {
     border-color: #04B486;
