@@ -223,10 +223,9 @@
       proactive network intelligence
     </h2> -->
 
-      <h2 class="typing-heading">
-        <span id="vision-title">
-          From reactive traffic control to proactive network intelligence
-        </span>
+      <h2 class="typing-heading" id="about-typing-heading">
+        <span id="typing-line-1"></span><br>
+        <span id="typing-line-2"></span>
       </h2>
   
     <p class="section-text about-text">
@@ -590,6 +589,54 @@
       toggle.textContent = body.classList.contains("dark") ? "Light" : "Dark";
     });
   </script>
+
+
+  <script>
+  const heading = document.getElementById("about-typing-heading");
+  const line1 = document.getElementById("typing-line-1");
+  const line2 = document.getElementById("typing-line-2");
+
+  const text1 = "From reactive traffic control to";
+  const text2 = "proactive network intelligence";
+
+  let hasTyped = false;
+
+  function typeText(element, text, speed, callback) {
+    let i = 0;
+    element.classList.add("typing-cursor");
+
+    const timer = setInterval(() => {
+      element.textContent += text.charAt(i);
+      i++;
+
+      if (i >= text.length) {
+        clearInterval(timer);
+        element.classList.remove("typing-cursor");
+
+        if (callback) callback();
+      }
+    }, speed);
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting && !hasTyped) {
+        hasTyped = true;
+        heading.classList.add("typing-active");
+
+        typeText(line1, text1, 35, () => {
+          typeText(line2, text2, 35, () => {
+            heading.classList.remove("typing-active");
+          });
+        });
+      }
+    });
+  }, {
+    threshold: 0.45
+  });
+
+  observer.observe(heading);
+</script>
 
 
   <!-- <script>
