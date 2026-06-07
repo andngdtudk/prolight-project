@@ -888,21 +888,6 @@ body.dark .institution-logo:hover .inst-logo-dark {
   width: auto;
 }
 
-.blog-figure {
-  margin: 40px 0;
-  padding: 20px;
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 28px;
-}
-
-.blog-figure figcaption {
-  text-align: center;
-  margin-top: 14px;
-  color: rgba(255,255,255,0.55);
-  font-size: 0.9rem;
-}
-
 .interactive-figure {
   margin: 48px 0;
   padding: 24px;
