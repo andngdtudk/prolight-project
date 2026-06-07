@@ -19,6 +19,123 @@
   <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
 </head>
 
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+
+  <script>
+  const gain = Array.from({length: 50}, (_, i) => i / 49);  // 0 to 1
+  const loss = Array.from({length: 50}, (_, i) => i / 49);  // 0 to 1
+  const betaGain = 2.5;
+  const betaLoss = 2.5;
+  const z = [];
+  
+  for (let j = 0; j < loss.length; j++) {
+    const row = [];
+    for (let i = 0; i < gain.length; i++) {
+      const deltaP = gain[i];
+      const deltaW = loss[j];
+      const vReroute = -5 + betaGain * deltaP + betaLoss * deltaW;
+      const prob = Math.exp(vReroute) / (Math.exp(vReroute) + 1);
+      row.push(prob);
+    }
+    z.push(row);
+  }
+
+  const betaGain = 2.5;
+  const betaLoss = 2.5;
+
+  for (let i = 0; i < 50; i++) {
+    gain.push(i / 49);
+    loss.push(i / 49);
+  }
+
+  for (let j = 0; j < loss.length; j++) {
+    const row = [];
+
+    for (let i = 0; i < gain.length; i++) {
+      const deltaP = gain[i];
+      const deltaW = loss[j];
+
+      const vReroute = -5 + betaGain * deltaP + betaLoss * deltaW;
+      const prob = Math.exp(vReroute) / (Math.exp(vReroute) + 1);
+
+      row.push(prob);
+    }
+
+    z.push(row);
+  }
+
+  const data = [{
+    type: "surface",
+    x: gain,
+    y: loss,
+    z: z,
+    colorscale: [
+      [0, "#050505"],
+      [0.5, "#013220"],
+      [1, "#04B486"]
+    ],
+    showscale: true,
+    contours: {
+      z: {
+        show: true,
+        usecolormap: true,
+        highlightcolor: "#ffffff",
+        project: { z: true }
+      }
+    },
+    hovertemplate:
+      "Expected gain: %{x:.2f}<br>" +
+      "Avoided loss: %{y:.2f}<br>" +
+      "Rerouting probability: %{z:.3f}<extra></extra>"
+  }];
+
+  const layout = {
+    paper_bgcolor: "#050505",
+    plot_bgcolor: "#050505",
+    margin: { l: 0, r: 0, b: 0, t: 30 },
+    title: {
+      text: "Rerouting Probability Based on Gain and Loss",
+      font: {
+        family: "General Sans, sans-serif",
+        size: 18,
+        color: "#ffffff"
+      }
+    },
+    scene: {
+      xaxis: {
+        title: "Expected gain Δp",
+        color: "#ffffff",
+        gridcolor: "rgba(255,255,255,0.25)",
+        zerolinecolor: "rgba(255,255,255,0.3)"
+      },
+      yaxis: {
+        title: "Avoided loss Δw",
+        color: "#ffffff",
+        gridcolor: "rgba(255,255,255,0.25)",
+        zerolinecolor: "rgba(255,255,255,0.3)"
+      },
+      zaxis: {
+        title: "Rerouting probability",
+        color: "#ffffff",
+        gridcolor: "rgba(255,255,255,0.25)",
+        zerolinecolor: "rgba(255,255,255,0.3)"
+      },
+      bgcolor: "#050505",
+      camera: {
+        eye: { x: 1.55, y: 1.55, z: 0.9 }
+      }
+    }
+  };
+
+  const config = {
+    responsive: true,
+    displayModeBar: false
+  };
+
+  Plotly.newPlot("reroute-surface", data, layout, config);
+</script>
+
 <body id="top" class="dark">
 
 <header class="navbar">
@@ -175,6 +292,10 @@
           information, fixed-place information, or online information sources. Once aware,
           they may choose an alternative route depending on the expected benefit of rerouting.
         </p>
+
+        <div class="interactive-figure">
+          <div id="reroute-surface"></div>
+        </div>
 
         <h3>Speed adaptation</h3>
         <p>
