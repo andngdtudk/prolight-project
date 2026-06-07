@@ -241,22 +241,31 @@ body.dark .hero-overlay {
   margin-bottom: 20px;
 }
 
-h1 {
+/* h1 {
   font-size: clamp(3rem, 8vw, 6.5rem);
   line-height: 0.95;
   letter-spacing: -0.08em;
   max-width: 900px;
-}
-
-h1,
-h2 {
-  font-family: "Geist", sans-serif;
-}
+} */
 
 /* h1,
 h2 {
-  font-family: "General Sans", sans-serif;
+  font-family: "Geist", sans-serif;
 } */
+
+h1 {
+  font-size: clamp(3rem, 8vw, 6.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+  font-weight: 500;
+  max-width: 900px;
+}
+
+
+h1,
+h2 {
+  font-family: "General Sans", sans-serif;
+}
 
 .subtitle,
 .section-text,
@@ -367,6 +376,7 @@ h2 {
   font-size: clamp(2rem, 5vw, 4rem);
   line-height: 1.05;
   letter-spacing: -0.06em;
+  font-weight: 400;
   max-width: 900px;
 }
 
