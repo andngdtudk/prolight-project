@@ -1229,33 +1229,17 @@ body.dark .institution-logo:hover .inst-logo-dark {
   text-align-last: left;
 }
 
-/* Mobile Responsive */
 @media (max-width: 900px) {
-  /* Navbar */
-  .navbar {
-    padding: 16px 6%;
-  }
 
-  nav {
-    gap: 12px;
-  }
-
-  #nav-links {
-    display: none; /* hide desktop nav links */
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .hamburger {
-    display: block; /* show hamburger */
-  }
-
-  /* Hero */
   .hero {
-    flex-direction: column;
+    grid-template-columns: 1fr;
     min-height: 80vh;
     padding: 90px 6% 70px;
-    align-items: flex-start;
+    align-items: center;
+  }
+
+  .hero-visual {
+    display: none;
   }
 
   .hero-content {
@@ -1273,26 +1257,82 @@ body.dark .institution-logo:hover .inst-logo-dark {
   }
 
   .hero-buttons {
-    flex-direction: column;
     gap: 12px;
-  }
-
-  .hero-video,
-  .hero-video-light,
-  .hero-video-dark {
-    display: none; /* hide large background video on mobile */
   }
 
   .hero-overlay {
     background: linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0.9) 0%,
-      rgba(255, 255, 255, 0.7) 38%,
-      rgba(255, 255, 255, 0.2) 100%
+      180deg,
+      rgba(255,255,255,0.92) 0%,
+      rgba(255,255,255,0.82) 45%,
+      rgba(255,255,255,0.45) 100%
     );
   }
 
-  /* About Modules */
+  body.dark .hero-overlay {
+    background: linear-gradient(
+      180deg,
+      rgba(0,0,0,0.88) 0%,
+      rgba(0,0,0,0.76) 45%,
+      rgba(0,0,0,0.48) 100%
+    );
+  }
+
+  .hero-video {
+    object-position: center center;
+  }
+
+  nav {
+    gap: 12px;
+  }
+
+  .hamburger {
+    display: block;
+  }
+
+  #nav-links {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    right: 6%;
+    min-width: 220px;
+    padding: 18px;
+    border-radius: 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    z-index: 1000;
+  }
+
+  #nav-links.show {
+    display: flex;
+  }
+
+  #nav-links a,
+  #nav-links button {
+    display: block;
+  }
+
+  #nav-links a {
+    padding: 8px 0;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  #nav-links a:hover {
+    color: var(--accent);
+  }
+
+  .cards,
+  .three-words {
+    grid-template-columns: 1fr;
+  }
+
+  .list-item {
+    grid-template-columns: 1fr;
+  }
+
   .about-modules {
     grid-template-columns: 1fr;
     gap: 24px;
@@ -1300,7 +1340,6 @@ body.dark .institution-logo:hover .inst-logo-dark {
 
   .about-card {
     min-height: auto;
-    padding: 32px 24px;
   }
 
   .about-card img {
@@ -1308,62 +1347,66 @@ body.dark .institution-logo:hover .inst-logo-dark {
     height: 110px;
   }
 
-  /* Technologies Grid */
   .technologies-grid {
     grid-template-columns: 1fr;
-    gap: 24px;
   }
 
-  /* Institutions Logos */
+  .technology-card {
+    min-height: auto;
+  }
+
+  .technology-card img {
+    width: 180px;
+  }
+
   .institutions-logos {
-    gap: 32px;
+    gap: 50px;
   }
 
-  /* Cards / Team / List Items */
-  .cards,
-  .team-grid,
-  .list {
-    grid-template-columns: 1fr;
+  .institution-logo img {
+    max-width: 170px;
   }
 
-  .team-card,
-  .card,
-  .list-item {
-    max-width: 100%;
-  }
-
-  /* News Grid */
   .news-grid {
     grid-template-columns: 1fr;
-    gap: 24px;
   }
 
-  /* Blog Content */
   .blog-content {
     grid-template-columns: 1fr;
-    gap: 24px;
-    padding: 60px 6%;
+    gap: 40px;
   }
 
   .blog-sidebar {
     position: relative;
     top: auto;
-    gap: 12px;
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 12px;
   }
 
-  /* Footer */
+  .team-grid {
+    grid-template-columns: 1fr;
+    gap: 42px;
+  }
+
+  .member-card img {
+    max-height: 520px;
+  }
+
   .footer-grid {
     grid-template-columns: 1fr;
-    gap: 32px;
+    gap: 40px;
   }
 
-  .footer {
-    padding: 40px 6%;
+  .footer-brand {
+    text-align: center;
   }
 
-  /* Team Grid / Members */
-  .member-card {
-    margin-bottom: 24px;
+  .footer-funder {
+    text-align: center;
+  }
+
+  .footer-bottom {
+    margin-top: 50px;
   }
 }
-
