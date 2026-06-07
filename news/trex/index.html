@@ -1,45 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Getting Started with T-REX | ProLight</title>
 
-  <link rel="stylesheet" href="../../style.css">
+  <meta name="description"
+        content="A ProLight tutorial introducing T-REX, a SUMO-based framework for evaluating traffic signal control robustness under incidents, lane blockages, rerouting, and network-level disruptions." />
+
+  <link rel="canonical" href="https://ai-prolight.eu/news/trex/" />
+  <link rel="icon" type="image/x-icon" href="/assets/logo/pl.ico" />
+  <link rel="stylesheet" href="/style.css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
 </head>
 
 <body id="top" class="dark">
 
-  <header class="navbar">
-    <a href="../../" class="logo">
-      <img src="../../assets/logo/Prolight-light.png" class="nav-logo-light">
-      <img src="../../assets/logo/Prolight-dark.png" class="nav-logo-dark">
-    </a>
+<header class="navbar">
+  <a href="/" class="logo">
+    <img src="/assets/logo/Prolight-light.png" class="nav-logo-light" alt="ProLight">
+    <img src="/assets/logo/Prolight-dark.png" class="nav-logo-dark" alt="ProLight">
+  </a>
 
-    <nav>
-      <a href="../../#vision">About</a>
-      <a href="../../#systems">Technologies</a>
-      <a href="../../#news">News</a>
-      <a href="../../#team">Team</a>
-    </nav>
-  </header>
+  <nav>
+    <a href="/#vision">About</a>
+    <a href="/#systems">Technologies</a>
+    <a href="/#news">News</a>
+    <a href="/#team">Team</a>
+  </nav>
+</header>
 
-  <main class="blog-page">
+<main class="blog-page">
 
-  <section class="blog-hero">
-    <div class="blog-hero-overlay"></div>
-
+  <section class="blog-hero trex-blog-hero">
     <div class="blog-hero-content">
       <p class="breadcrumb">News › Tutorial</p>
 
       <h1>Getting Started with T-REX</h1>
 
       <p class="blog-hero-subtitle">
-        Learn how to evaluate traffic signal control algorithms under incidents,
-        uncertainty, and network-level disruptions.
+        Learn how to use T-REX to evaluate traffic signal control algorithms
+        under incidents, lane blockages, rerouting behavior, and network-level disruptions.
       </p>
-      
+
       <a href="https://github.com/andngdtudk/T-REX"
          class="btn primary blog-hero-btn"
          target="_blank">
@@ -53,34 +61,328 @@
     <aside class="blog-sidebar">
       <a href="#overview">Overview</a>
       <a href="#why-trex">Why T-REX?</a>
+      <a href="#framework">Framework</a>
+      <a href="#incidents">Incident modeling</a>
+      <a href="#driver-behavior">Driver behavior</a>
+      <a href="#rl-interface">RL interface</a>
+      <a href="#networks">Benchmark networks</a>
+      <a href="#metrics">Robustness metrics</a>
       <a href="#installation">Installation</a>
-      <a href="#run">Run an Experiment</a>
-      <a href="#metrics">Evaluation Metrics</a>
-      <a href="#next">Next Steps</a>
+      <a href="#run">Run experiments</a>
+      <a href="#citation">Citation</a>
     </aside>
 
     <article class="blog-article">
 
       <section id="overview">
         <h2>Overview</h2>
+
         <p>
-          T-REX is a simulation environment for training and evaluating
-          AI-based traffic signal control algorithms under incidents and
-          network-level disruptions.
+          T-REX is an open-source, SUMO-based simulation framework for training
+          and evaluating traffic signal control methods under disruptive traffic
+          incidents. It is designed to move beyond standard recurrent congestion
+          benchmarks by introducing incident-driven distribution shifts such as lane
+          blockages, rerouting, speed adaptation, and congestion propagation.
         </p>
+
+        <figure class="blog-figure">
+          <img src="/assets/blog/trex-framework.png"
+               alt="Schematic overview of the T-REX framework">
+          <figcaption>
+            Figure placeholder: schematic overview of the T-REX framework.
+          </figcaption>
+        </figure>
       </section>
 
       <section id="why-trex">
         <h2>Why T-REX?</h2>
+
         <p>
-          Most traffic signal control benchmarks focus on recurrent congestion.
-          T-REX focuses on robustness under non-recurrent disruptions such as
-          lane blockages, incidents, and uncertain driver responses.
+          Many reinforcement learning-based traffic signal control studies evaluate
+          algorithms under stable simulation conditions. However, real urban networks
+          are affected by incidents, blocked lanes, uncertain driver responses, and
+          non-recurrent congestion. T-REX addresses this gap by providing a reproducible
+          environment for testing whether control policies remain stable and efficient
+          when the traffic network is disrupted.
+        </p>
+
+        <p>
+          The main idea is simple: instead of only asking whether an algorithm performs
+          well in normal traffic, T-REX asks whether it remains reliable when the network
+          changes unexpectedly.
         </p>
       </section>
 
-    </article>
+      <section id="framework">
+        <h2>Framework architecture</h2>
 
+        <p>
+          T-REX is organized around four main modules: the network environment,
+          initializer, deployment module, and reinforcement learning interaction module.
+          The network environment loads the SUMO scenario, including the road network,
+          routes, traffic signals, and vehicle attributes. The initializer defines incident
+          parameters such as location, duration, blocked lanes, and start time. The
+          deployment module injects incidents and modifies vehicle behavior. The RL
+          interaction module connects the simulation with traffic signal control agents.
+        </p>
+
+        <div class="blog-callout">
+          <strong>Core idea:</strong>
+          T-REX turns SUMO into an incident-aware benchmarking environment for
+          robustness evaluation.
+        </div>
+      </section>
+
+      <section id="incidents">
+        <h2>Incident modeling</h2>
+
+        <p>
+          T-REX models incidents as lane-blocking events that can occur at selected
+          edges, positions, times, and durations. Incidents can be generated randomly
+          or specified by the user. The framework supports partial or full lane blockages,
+          multiple simultaneous incidents, and reproducible scenario generation.
+        </p>
+
+        <p>
+          In the recommended virtual blockage approach, dummy incident vehicles are
+          inserted into the simulation to block selected lanes. This gives precise control
+          over the incident location and timing while avoiding some of the limitations
+          of simply reducing speed limits or manually editing network capacity.
+        </p>
+
+        <figure class="blog-figure">
+          <img src="/assets/blog/trex-incident-example.png"
+               alt="Example of incident deployment in T-REX">
+          <figcaption>
+            Figure placeholder: lane blockage and incident deployment example.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section id="driver-behavior">
+        <h2>Driver behavior under incidents</h2>
+
+        <p>
+          A key feature of T-REX is that incidents do not only block lanes. They also
+          change driver behavior. The framework models three important behavioral
+          responses: rerouting, speed adaptation, and contextual lane changing.
+        </p>
+
+        <h3>Rerouting</h3>
+        <p>
+          T-REX implements rerouting behavior using the Information Comply Model.
+          Drivers may become aware of an incident through direct observation, fixed-time
+          information, fixed-place information, or online information sources. Once aware,
+          they may choose an alternative route depending on the expected benefit of rerouting.
+        </p>
+
+        <h3>Speed adaptation</h3>
+        <p>
+          Vehicles approaching an incident reduce speed based on a stopping-sight-distance
+          mechanism. This represents cautious driving behavior near blocked lanes or
+          disabled vehicles.
+        </p>
+
+        <h3>Contextual lane changing</h3>
+        <p>
+          T-REX modifies lane-changing behavior so that vehicles can make earlier and
+          more strategic lane changes when approaching an obstruction. This helps simulate
+          more realistic congestion propagation around incidents.
+        </p>
+      </section>
+
+      <section id="rl-interface">
+        <h2>RL interaction</h2>
+
+        <p>
+          T-REX uses the RESCO interface to connect SUMO with reinforcement learning
+          agents. At each decision interval, agents observe local traffic states, select
+          signal phases, apply actions through TraCI, and receive rewards based on traffic
+          performance.
+        </p>
+
+        <div class="code-card">
+<pre><code>Observation → queue length, pressure, incoming flow
+Action      → discrete traffic signal phase
+Reward      → delay, queue, throughput, pressure, or custom objective</code></pre>
+        </div>
+
+        <p>
+          T-REX can be used with existing RL-TSC algorithms such as IDQN, IPPO,
+          MPLight, and FMA2C, as well as custom control methods implemented through
+          the Gym-compatible interface.
+        </p>
+      </section>
+
+      <section id="networks">
+        <h2>Benchmark networks</h2>
+
+        <p>
+          T-REX supports multiple synthetic and real-world benchmark networks, ranging
+          from small corridors to larger urban regions.
+        </p>
+
+        <div class="blog-table-wrap">
+          <table class="blog-table">
+            <thead>
+              <tr>
+                <th>Scenario</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Grid4x4</td>
+                <td>16-intersection synthetic grid network.</td>
+              </tr>
+              <tr>
+                <td>Cologne Corridor</td>
+                <td>3-intersection corridor from the TAPAS Cologne scenario.</td>
+              </tr>
+              <tr>
+                <td>Cologne Region</td>
+                <td>8-intersection regional network.</td>
+              </tr>
+              <tr>
+                <td>Ingolstadt Corridor</td>
+                <td>7-intersection corridor from the InTAS scenario.</td>
+              </tr>
+              <tr>
+                <td>Ingolstadt Region</td>
+                <td>21-intersection realistic large-scale case.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="metrics">
+        <h2>Robustness metrics</h2>
+
+        <p>
+          T-REX evaluates traffic control methods using both standard traffic efficiency
+          indicators and robustness-aware learning metrics. This is important because
+          good final performance alone does not necessarily imply safe or stable behavior
+          during training, transfer, or incident-driven distribution shifts.
+        </p>
+
+        <div class="blog-table-wrap">
+          <table class="blog-table">
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Average travel time</td>
+                <td>Measures total trip efficiency.</td>
+              </tr>
+              <tr>
+                <td>Queue length</td>
+                <td>Measures congestion accumulation at intersections.</td>
+              </tr>
+              <tr>
+                <td>Waiting time</td>
+                <td>Measures time vehicles spend stopped or delayed.</td>
+              </tr>
+              <tr>
+                <td>Learning Stability Index</td>
+                <td>Quantifies fluctuations in the learning curve.</td>
+              </tr>
+              <tr>
+                <td>Final Performance Deviation</td>
+                <td>Measures whether the final policy retains its best performance.</td>
+              </tr>
+              <tr>
+                <td>Relative AUC Difference</td>
+                <td>Compares learning performance between base and incident scenarios.</td>
+              </tr>
+              <tr>
+                <td>Performance Degradation Index</td>
+                <td>Measures performance loss under transfer or distribution shift.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="installation">
+        <h2>Installation</h2>
+
+        <p>
+          Clone the repository and create the environment.
+        </p>
+
+        <div class="code-card">
+<pre><code>git clone https://github.com/andngdtudk/T-REX.git
+cd T-REX
+
+conda env create -f environment.yml
+conda activate trex</code></pre>
+        </div>
+
+        <p>
+          T-REX requires SUMO, TraCI, Python, Gym-compatible RL components, and
+          the learning libraries used by the supported algorithms.
+        </p>
+      </section>
+
+      <section id="run">
+        <h2>Run experiments</h2>
+
+        <p>
+          To run a base scenario without incidents:
+        </p>
+
+        <div class="code-card">
+<pre><code>python main.py --agent IDQN --map grid4x4 --eps 100 --tr 0 --strategy 1</code></pre>
+        </div>
+
+        <p>
+          To run an incident scenario:
+        </p>
+
+        <div class="code-card">
+<pre><code>python main.py --agent IDQN --map grid4x4 --eps 100 --tr 0 --strategy 2</code></pre>
+        </div>
+
+        <p>
+          Results are saved under the corresponding results folder and can be used
+          to compare algorithms across normal and incident conditions.
+        </p>
+
+        <figure class="blog-figure">
+          <img src="/assets/blog/trex-results-placeholder.png"
+               alt="Example T-REX result visualization">
+          <figcaption>
+            Figure placeholder: performance comparison between base and incident scenarios.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section id="citation">
+        <h2>Citation</h2>
+
+        <p>
+          If you use T-REX in your research, please cite the corresponding paper.
+        </p>
+
+        <div class="code-card">
+<pre><code>@misc{nguyen2025robustnessreinforcementlearningbasedtraffic,
+  title={Robustness of Reinforcement Learning-Based Traffic Signal Control under Incidents: A Comparative Study},
+  author={Dang Viet Anh Nguyen and Carlos Lima Azevedo and Tomer Toledo and Filipe Rodrigues},
+  year={2025},
+  eprint={2506.13836},
+  archivePrefix={arXiv},
+  primaryClass={cs.LG},
+  url={https://arxiv.org/abs/2506.13836}
+}</code></pre>
+        </div>
+      </section>
+
+    </article>
   </section>
 
 </main>
