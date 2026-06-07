@@ -1,54 +1,59 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<main class="blog-page">
 
-  <title>Getting Started with T-REX | ProLight</title>
+  <section class="blog-hero">
+    <div class="blog-hero-overlay"></div>
 
-  <link rel="stylesheet" href="../../style.css">
-</head>
-
-<body id="top" class="dark">
-
-  <header class="navbar">
-    <a href="../../" class="logo">
-      <img src="../../assets/logo/Prolight-light.png" class="nav-logo-light">
-      <img src="../../assets/logo/Prolight-dark.png" class="nav-logo-dark">
-    </a>
-
-    <nav>
-      <a href="../../#vision">About</a>
-      <a href="../../#systems">Technologies</a>
-      <a href="../../#news">News</a>
-      <a href="../../#team">Team</a>
-    </nav>
-  </header>
-
-  <main>
-    <article class="post">
-      <p class="section-label">Tutorial</p>
+    <div class="blog-hero-content">
+      <p class="breadcrumb">News › Tutorial</p>
 
       <h1>Getting Started with T-REX</h1>
 
-      <p class="post-meta">ProLight Project · 2026</p>
-
       <p>
-        T-REX is a simulation environment for training and evaluating
-        AI-based traffic signal control algorithms under incidents,
+        Learn how to evaluate traffic signal control algorithms under incidents,
         uncertainty, and network-level disruptions.
       </p>
 
-      <h2>Why T-REX?</h2>
+      <a href="https://github.com/andngdtudk/T-REX"
+         class="btn primary"
+         target="_blank">
+        View Repository
+      </a>
+    </div>
+  </section>
 
-      <p>
-        Traditional traffic signal control benchmarks often evaluate algorithms
-        under recurrent demand patterns. T-REX focuses on incident-aware
-        evaluation, where disruptions can propagate across the network and
-        challenge the robustness of control policies.
-      </p>
+  <section class="blog-content">
+
+    <aside class="blog-sidebar">
+      <a href="#overview">Overview</a>
+      <a href="#why-trex">Why T-REX?</a>
+      <a href="#installation">Installation</a>
+      <a href="#run">Run an Experiment</a>
+      <a href="#metrics">Evaluation Metrics</a>
+      <a href="#next">Next Steps</a>
+    </aside>
+
+    <article class="blog-article">
+
+      <section id="overview">
+        <h2>Overview</h2>
+        <p>
+          T-REX is a simulation environment for training and evaluating
+          AI-based traffic signal control algorithms under incidents and
+          network-level disruptions.
+        </p>
+      </section>
+
+      <section id="why-trex">
+        <h2>Why T-REX?</h2>
+        <p>
+          Most traffic signal control benchmarks focus on recurrent congestion.
+          T-REX focuses on robustness under non-recurrent disruptions such as
+          lane blockages, incidents, and uncertain driver responses.
+        </p>
+      </section>
+
     </article>
-  </main>
 
-</body>
-</html>
+  </section>
+
+</main>
