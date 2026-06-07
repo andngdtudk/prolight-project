@@ -1172,6 +1172,19 @@ body.dark .institution-logo:hover .inst-logo-dark {
   margin-bottom: 8px;
 }
 
+.blog-article p,
+.blog-article li {
+  text-align: justify;
+}
+
+.blog-article p {
+  margin-bottom: 1.2em;
+}
+
+.blog-article p {
+  text-align-last: left;
+}
+
 
 @media (max-width: 900px) {
   .hero {
