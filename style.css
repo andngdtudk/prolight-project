@@ -784,6 +784,18 @@ body.dark .institution-logo:hover .inst-logo-dark {
   line-height: 1.7;
 }
 
+.blog-hero-subtitle {
+  margin-top: 32px;
+  margin-bottom: 34px;
+  max-width: 760px;
+  line-height: 1.7;
+}
+
+.blog-hero-btn {
+  display: inline-flex;
+  margin-top: 8px;
+}
+
 .blog-content {
   display: grid;
   grid-template-columns: 260px 1fr;
