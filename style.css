@@ -901,6 +901,21 @@ body.dark .institution-logo:hover .inst-logo-dark {
   height: 560px;
 }
 
+.blog-video {
+  width: 100%;
+  border-radius: 24px;
+  margin: 32px 0 12px 0;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: #050505;
+}
+
+.figure-caption {
+  text-align: center;
+  color: rgba(255,255,255,0.55);
+  font-size: 0.9rem;
+  margin-bottom: 32px;
+}
+
 .team-card {
   margin-top: 40px;
   max-width: 720px;
