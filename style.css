@@ -691,6 +691,7 @@ body.dark .institution-logo:hover .inst-logo-dark {
 
 .news-section {
   padding-top: 120px;
+  max-width: 1400px;
 }
 
 .news-text {
