@@ -92,6 +92,22 @@ body.dark .nav-logo-light { display: none; }
 body.dark .nav-logo-dark { display: block; }
 
 
+/* Hamburger button - hidden on desktop */
+.hamburger {
+  display: none;
+  font-size: 1.8rem;
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+}
+
+/* Mobile nav - hidden by default */
+#nav-links {
+  display: flex;
+  gap: 36px;
+}
+
 
 /* .logo img {
   height: clamp(42px, 5vw, 68px);
@@ -1215,6 +1231,49 @@ body.dark .institution-logo:hover .inst-logo-dark {
 
 
 @media (max-width: 900px) {
+
+  #nav-links {
+    display: none;
+    flex-direction: column;
+    background: var(--surface);
+    position: absolute;
+    top: 100%;
+    right: 6%;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+    z-index: 1000;
+  }
+
+  #nav-links {
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+#nav-links.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+  #nav-links.show {
+    display: flex;
+  }
+
+  .hamburger {
+    display: block;
+  }
+
+  nav a {
+    display: block;
+    padding: 8px 0;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  nav a:hover {
+    color: var(--accent);
+  }
 
   /* NAVBAR */
 
