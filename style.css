@@ -449,7 +449,7 @@ h2 {
 
 .about-card h3 {
   font-size: 1.45rem;
-  font-weight: 700;
+  font-weight: 400;
   margin-bottom: 18px;
   color: var(--text);
 }
@@ -561,7 +561,7 @@ body.dark .tech-logo-dark {
 .technology-card h3 {
   font-size: 1.6rem;
   margin-bottom: 20px;
-  font-weight: 700;
+  font-weight: 400;
 }
 
 .technology-card p {
