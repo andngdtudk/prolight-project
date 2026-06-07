@@ -1058,6 +1058,10 @@ body.dark .institution-logo:hover .inst-logo-dark {
     max-width: 170px;
 }
 
+    .news-grid {
+  grid-template-columns: 1fr;
+}
+
     .team-grid {
   grid-template-columns: 1fr;
   gap: 42px;
