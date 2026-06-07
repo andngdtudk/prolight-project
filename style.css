@@ -829,6 +829,15 @@ body.dark .institution-logo:hover .inst-logo-dark {
   line-height: 1.85;
 }
 
+.blog-title {
+  margin-bottom: 20px;
+}
+
+.blog-tech-logo {
+  height: 90px;
+  width: auto;
+}
+
 .team-card {
   margin-top: 40px;
   max-width: 720px;
