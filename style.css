@@ -770,7 +770,7 @@ body.dark .institution-logo:hover .inst-logo-dark {
 }
 
 .blog-hero h1 {
-  font-size: clamp(3rem, 7vw, 6rem);
+  font-size: clamp(3rem, 5vw, 4.8rem);
   line-height: 0.95;
   letter-spacing: -0.07em;
   color: var(--text);
