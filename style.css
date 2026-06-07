@@ -490,6 +490,10 @@ h2 {
   padding-top: 120px;
 }
 
+.technologies-section h2 {
+  max-width: 1400px;
+}
+
 .technologies-text {
   max-width: 900px;
   margin-top: 24px;
