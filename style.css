@@ -888,6 +888,19 @@ body.dark .institution-logo:hover .inst-logo-dark {
   width: auto;
 }
 
+.interactive-figure {
+  margin: 48px 0;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+}
+
+#reroute-surface {
+  width: 100%;
+  height: 560px;
+}
+
 .team-card {
   margin-top: 40px;
   max-width: 720px;
