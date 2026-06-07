@@ -1448,3 +1448,27 @@ body.dark .institution-logo:hover .inst-logo-dark {
 
 }
 }
+
+@media (max-width: 520px) {
+  .blog-hero {
+    padding: 120px 5% 60px;
+  }
+
+  .blog-hero h1 {
+    font-size: clamp(2.2rem, 13vw, 3.4rem);
+  }
+
+  .blog-content {
+    padding: 60px 5%;
+  }
+
+  .interactive-figure,
+  .blog-figure,
+  .code-card {
+    border-radius: 18px;
+    padding: 14px;
+  }
+
+  #reroute-surface {
+    height: 360px;
+  }
