@@ -92,22 +92,6 @@ body.dark .nav-logo-light { display: none; }
 body.dark .nav-logo-dark { display: block; }
 
 
-/* Hamburger button - hidden on desktop */
-.hamburger {
-  display: none;
-  font-size: 1.8rem;
-  background: none;
-  border: none;
-  color: var(--text);
-  cursor: pointer;
-}
-
-/* Mobile nav - hidden by default */
-#nav-links {
-  display: flex;
-  gap: 36px;
-}
-
 
 /* .logo img {
   height: clamp(42px, 5vw, 68px);
@@ -917,21 +901,6 @@ body.dark .institution-logo:hover .inst-logo-dark {
   height: 560px;
 }
 
-.blog-video {
-  width: 100%;
-  border-radius: 24px;
-  margin: 32px 0 12px 0;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: #050505;
-}
-
-.figure-caption {
-  text-align: center;
-  color: rgba(255,255,255,0.55);
-  font-size: 0.9rem;
-  margin-bottom: 32px;
-}
-
 .team-card {
   margin-top: 40px;
   max-width: 720px;
@@ -1229,6 +1198,7 @@ body.dark .institution-logo:hover .inst-logo-dark {
   text-align-last: left;
 }
 
+
 @media (max-width: 900px) {
   .hero {
     grid-template-columns: 1fr;
@@ -1269,7 +1239,10 @@ body.dark .institution-logo:hover .inst-logo-dark {
     height: 110px;
   }
 
-  .hero {
+  @media (max-width: 900px) {
+
+
+    .hero {
     min-height: 80vh;
     padding: 90px 6% 70px;
     align-items: center;
@@ -1314,32 +1287,36 @@ body.dark .institution-logo:hover .inst-logo-dark {
   .hero-video {
     object-position: center center;
   }
+    .technologies-grid {
 
-  .technologies-grid {
-    grid-template-columns: 1fr;
-  }
+        grid-template-columns: 1fr;
+    }
 
-  .technology-card {
-    min-height: auto;
-  }
+    .technology-card {
 
-  .technology-card img {
-    width: 180px;
-  }
+        min-height: auto;
+    }
 
-  .institutions-logos {
+    .technology-card img {
+
+        width: 180px;
+    }
+
+    .institutions-logos {
+
     gap: 50px;
-  }
+}
 
-  .institution-logo img {
+.institution-logo img {
+
     max-width: 170px;
-  }
+}
 
-  .news-grid {
-    grid-template-columns: 1fr;
-  }
+    .news-grid {
+  grid-template-columns: 1fr;
+}
 
-  .blog-content {
+    .blog-content {
     grid-template-columns: 1fr;
     gap: 40px;
   }
@@ -1352,29 +1329,38 @@ body.dark .institution-logo:hover .inst-logo-dark {
     padding-bottom: 12px;
   }
 
-  .team-grid {
-    grid-template-columns: 1fr;
-    gap: 42px;
-  }
+    .team-grid {
+  grid-template-columns: 1fr;
+  gap: 42px;
+}
 
-  .member-card img {
-    max-height: 520px;
-  }
+.member-card img {
+  max-height: 520px;
+}
 
-  .footer-grid {
-    grid-template-columns: 1fr;
-    gap: 40px;
-  }
+.footer-grid {
 
-  .footer-brand {
-    text-align: center;
-  }
+  grid-template-columns: 1fr;
 
-  .footer-funder {
-    text-align: center;
-  }
+  gap: 40px;
+}
 
-  .footer-bottom {
-    margin-top: 50px;
-  }
+.footer-brand {
+
+  text-align: center;
+}
+
+.footer-funder {
+
+  text-align: center;
+}
+
+.footer-bottom {
+
+  margin-top: 50px;
+}
+
+    
+
+}
 }
