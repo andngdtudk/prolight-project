@@ -929,7 +929,7 @@ body.dark .institution-logo:hover .inst-logo-dark {
 
 .member-card h3 {
   font-size: 1.15rem;
-  font-weight: 700;
+  font-weight: 400;
   margin-bottom: 8px;
   color: var(--text);
 }
