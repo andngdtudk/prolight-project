@@ -746,9 +746,18 @@ body.dark .institution-logo:hover .inst-logo-dark {
   font-weight: 600;
 }
 
-.news-card h3 {
+/* .news-card h3 {
   margin-top: 18px;
   font-size: 1.45rem;
+  color: var(--text);
+} */
+
+.news-card h3 {
+  font-family: "General Sans", sans-serif;
+  margin-top: 18px;
+  font-size: 1.45rem;
+  font-weight: 400;
+  line-height: 1.2;
   color: var(--text);
 }
 
