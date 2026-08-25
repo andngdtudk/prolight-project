@@ -91,6 +91,15 @@
           blockages, rerouting, speed adaptation, and congestion propagation.
         </p>
 
+        <p>
+          The framework is organized around four modules — Network Environment,
+          Initializer, Deployment, and RL Interaction — implemented as a single,
+          Gym-compatible environment class (<code>TrexEnv</code>) whose incident
+          behavior is switched on or off by one configuration parameter. This keeps
+          the base (incident-free) and incident scenarios as two instances of the
+          same environment rather than two separate code paths to maintain.
+        </p>
+
         <figure class="blog-figure">
           <img src="/assets/blog/trex-framework.png"
                alt="Schematic overview of the T-REX framework">
@@ -132,6 +141,30 @@
           interaction module connects the simulation with traffic signal control agents.
         </p>
 
+        <p>
+          In code, these map onto: <code>TrexEnv</code> (the Gym environment, network
+          setup, and step loop) for the network environment; <code>Initializer</code> for
+          incident sampling; <code>Deployment</code> for rerouting, speed adaptation, and
+          lane-changing during the simulation; and the RL-agent implementations
+          (IDQN, IPPO, MPLight, FMA2C, and rule-based baselines) plus the reward/state
+          functions used to connect them to the environment.
+        </p>
+
+        <div class="code-card">
+<pre><code># Base scenario -- incidents disabled, Initializer/Deployment never invoked
+env = TrexEnv(..., incident_config=None)
+
+# Incident scenario -- incidents enabled with the given parameters
+env = TrexEnv(..., incident_config=IncidentConfig(level=2))</code></pre>
+        </div>
+
+        <p>
+          <code>main.py</code> selects between the two automatically from the
+          <code>--strategy</code> flag (<code>1</code> = base, <code>2</code> = incident),
+          so switching a training run between conditions is a single command-line flag,
+          not a different script.
+        </p>
+
         <div class="blog-callout">
           <strong>Core idea:</strong>
           T-REX turns SUMO into an incident-aware benchmarking environment for
@@ -147,6 +180,19 @@
           edges, positions, times, and durations. Incidents can be generated randomly
           or specified by the user. The framework supports partial or full lane blockages,
           multiple simultaneous incidents, and reproducible scenario generation.
+        </p>
+
+        <p>
+          When incidents are randomly generated, the <code>Initializer</code> samples each
+          parameter independently for every episode: the edge is drawn from a probability
+          distribution weighted by historical traffic flow on real-world networks (uniformly
+          at random on synthetic ones), the number of blocked lanes and their position along
+          the edge are drawn uniformly, the start time is drawn uniformly within the episode
+          window, and the duration is drawn from an exponential distribution — producing
+          mostly short disruptions with an occasional long-tail incident, similar to real
+          incident-clearance times. Alternatively, a scenario can pin every parameter to a
+          fixed value for controlled, repeatable experiments (e.g. always blocking the same
+          two lanes of the same edge for 5 minutes starting at minute 10).
         </p>
 
         <p>
@@ -198,6 +244,24 @@
           they may choose an alternative route depending on the expected benefit of rerouting.
         </p>
 
+        <p>
+          Awareness from the four sources is combined into a single probability per driver
+          per step, and a driver who becomes aware evaluates rerouting through a binomial
+          logit model of the expected gain from switching routes (Δp) and the loss avoided
+          by not entering the affected arc (Δw):
+        </p>
+
+        <div class="code-card">
+<pre><code>P(reroute) = 1 / (1 + exp(-(β0 + β_gain·Δp − β_loss·Δw)))</code></pre>
+        </div>
+
+        <p>
+          The surface below plots exactly this function (β0 = −5, β_gain = β_loss = 2.5,
+          as used in T-REX): rerouting probability stays low unless both the expected gain
+          and the avoided loss are large enough to outweigh a driver's baseline reluctance
+          to deviate from their planned route.
+        </p>
+
         <div class="interactive-figure">
           <div id="reroute-surface" style="width:100%; height:560px;"></div>
         </div>
@@ -209,11 +273,35 @@
           disabled vehicles.
         </p>
 
+        <p>
+          T-REX computes each vehicle's stopping sight distance (SSD) from the AASHTO
+          formula, combining a perception-reaction distance and a braking distance:
+        </p>
+
+        <div class="code-card">
+<pre><code>SSD = v · t_reaction + v² / (2 · a_decel)
+      # t_reaction = 2.5 s, a_decel = 3.4 m/s² (AASHTO)</code></pre>
+        </div>
+
+        <p>
+          Once a vehicle is within its own SSD of the incident, its target speed and
+          lane-change behavior are adjusted for the remainder of the approach; vehicles
+          that have already passed the incident are returned to normal driving parameters.
+        </p>
+
         <h3>Contextual lane changing</h3>
         <p>
           T-REX modifies lane-changing behavior so that vehicles can make earlier and
           more strategic lane changes when approaching an obstruction. This helps simulate
           more realistic congestion propagation around incidents.
+        </p>
+
+        <p>
+          Concretely, vehicles inside the incident's influence zone get adjusted SUMO
+          LC2013 lane-change parameters — increased strategic and cooperative lane-changing,
+          reduced speed-gain-driven changes, and keep-right behavior disabled — so that
+          merging around a blockage happens earlier and more cooperatively than default
+          SUMO lane-changing would produce.
         </p>
       </section>
 
@@ -236,7 +324,9 @@ Reward      → delay, queue, throughput, pressure, or custom objective</code></
         <p>
           T-REX can be used with existing RL-TSC algorithms such as IDQN, IPPO,
           MPLight, and FMA2C, as well as custom control methods implemented through
-          the Gym-compatible interface.
+          the Gym-compatible interface. Rule-based baselines — Fixed-time, Random,
+          Max-pressure, and a Greedy (max-wave) controller — are included as reference
+          points for comparison against the learning-based methods.
         </p>
       </section>
 
@@ -280,6 +370,13 @@ Reward      → delay, queue, throughput, pressure, or custom objective</code></
             </tbody>
           </table>
         </div>
+
+        <p>
+          Grid4x4 is a synthetic network used for controlled, easily-reproduced
+          experiments; the Cologne and Ingolstadt networks are real-world networks built
+          from the TAPAS Cologne and InTAS traffic datasets respectively, giving results
+          on both idealized and realistic road geometries and demand patterns.
+        </p>
       </section>
 
       <figure class="blog-figure">
@@ -298,6 +395,13 @@ Reward      → delay, queue, throughput, pressure, or custom objective</code></
           indicators and robustness-aware learning metrics. This is important because
           good final performance alone does not necessarily imply safe or stable behavior
           during training, transfer, or incident-driven distribution shifts.
+        </p>
+
+        <p>
+          Each simulated episode writes raw per-step traffic indicators (reward, queue
+          length, waiting time per signal) and SUMO's own per-vehicle trip records; the
+          robustness metrics below are computed from these logs across an entire training
+          or evaluation run.
         </p>
 
         <div class="blog-table-wrap">
@@ -322,19 +426,27 @@ Reward      → delay, queue, throughput, pressure, or custom objective</code></
                 <td>Measures time vehicles spend stopped or delayed.</td>
               </tr>
               <tr>
-                <td>Learning Stability Index</td>
+                <td>Learning Stability Index (LSI)</td>
                 <td>Quantifies fluctuations in the learning curve.</td>
               </tr>
               <tr>
-                <td>Final Performance Deviation</td>
+                <td>Final Performance Deviation (FPD)</td>
                 <td>Measures whether the final policy retains its best performance.</td>
               </tr>
               <tr>
-                <td>Relative AUC Difference</td>
+                <td>Convergence Rate (CR)</td>
+                <td>Measures how quickly and consistently a policy converges during training.</td>
+              </tr>
+              <tr>
+                <td>Area Under the Curve (AUC)</td>
+                <td>Summarizes cumulative learning performance over an entire training run.</td>
+              </tr>
+              <tr>
+                <td>Relative AUC Difference (RAUC)</td>
                 <td>Compares learning performance between base and incident scenarios.</td>
               </tr>
               <tr>
-                <td>Performance Degradation Index</td>
+                <td>Performance Degradation Index (PDI)</td>
                 <td>Measures performance loss under transfer or distribution shift.</td>
               </tr>
             </tbody>
@@ -346,21 +458,30 @@ Reward      → delay, queue, throughput, pressure, or custom objective</code></
         <h2>Installation</h2>
 
         <p>
-          Clone the repository and create the environment.
+          Clone the repository, install <a href="https://www.eclipse.org/sumo/" target="_blank">SUMO</a>
+          (set the <code>SUMO_HOME</code> environment variable to its install directory),
+          and install the pinned Python dependencies:
         </p>
 
         <div class="code-card">
 <pre><code>git clone https://github.com/andngdtudk/T-REX.git
 cd T-REX
 
-conda env create -f environment.yml
-conda activate trex</code></pre>
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt</code></pre>
         </div>
 
         <p>
-          T-REX requires SUMO, TraCI, Python, Gym-compatible RL components, and
-          the learning libraries used by the supported algorithms.
+          T-REX requires SUMO, TraCI, Python 3.10+, Gym-compatible RL components, and
+          the learning libraries used by the supported algorithms (PyTorch, TensorFlow,
+          PFRL) — all pinned in <code>requirements.txt</code>. You can verify the install
+          with a one-episode smoke test before running a full experiment:
         </p>
+
+        <div class="code-card">
+<pre><code>export LIBSUMO_AS_TRACI=1
+python main.py --agent MAXPRESSURE --map grid4x4 --eps 1 --strategy 1 --libsumo True</code></pre>
+        </div>
       </section>
 
       <section id="run">
@@ -371,20 +492,27 @@ conda activate trex</code></pre>
         </p>
 
         <div class="code-card">
-<pre><code>python main.py --agent IDQN --map grid4x4 --eps 100 --tr 0 --strategy 1</code></pre>
+<pre><code>export LIBSUMO_AS_TRACI=1
+python main.py --agent IDQN --map grid4x4 --eps 100 --tr 0 --strategy 1 --libsumo True --seed 0</code></pre>
         </div>
 
         <p>
-          To run an incident scenario:
+          To run the same setup with incidents enabled, the only thing that changes is
+          <code>--strategy</code>:
         </p>
 
         <div class="code-card">
-<pre><code>python main.py --agent IDQN --map grid4x4 --eps 100 --tr 0 --strategy 2</code></pre>
+<pre><code>python main.py --agent IDQN --map grid4x4 --eps 100 --tr 0 --strategy 2 --libsumo True --seed 0</code></pre>
         </div>
 
         <p>
-          Results are saved under the corresponding results folder and can be used
-          to compare algorithms across normal and incident conditions.
+          <code>--seed</code> seeds Python, NumPy, PyTorch, and SUMO itself for a
+          reproducible run; the paper's reported results are averaged over 5 seeds, so a
+          full reproduction runs each configuration with <code>--seed 0</code> through
+          <code>--seed 4</code> and averages externally. Results — per-episode metrics and
+          SUMO's own per-vehicle trip records — are saved under
+          <code>results/&lt;run-name&gt;/</code> and can be used to compare algorithms
+          across normal and incident conditions.
         </p>
 
         <figure class="blog-figure">
@@ -414,6 +542,12 @@ conda activate trex</code></pre>
   url={https://arxiv.org/abs/2506.13836}
 }</code></pre>
         </div>
+
+        <p>
+          The paper has been submitted to <em>European Transport Research Review</em>;
+          the arXiv preprint above is the citable version until a journal
+          volume/pages/DOI are assigned.
+        </p>
       </section>
 
     </article>
