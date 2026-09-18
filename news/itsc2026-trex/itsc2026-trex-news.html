@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>T-REX Spotlight Presentation at IEEE ITSC 2026 | ProLight</title>
+
+  <meta name="description"
+        content="ProLight presented T-REX, an open-source framework for evaluating traffic signal control robustness under incidents, at the Traffic Control Optimization for Smart Cities workshop during IEEE ITSC 2026 in Naples." />
+
+  <link rel="canonical" href="https://ai-prolight.eu/news/itsc2026-trex/" />
+  <link rel="icon" type="image/x-icon" href="/assets/logo/pl.ico" />
+  <link rel="stylesheet" href="/style.css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+</head>
+
+<body id="top" class="dark">
+
+<header class="navbar">
+  <a href="/" class="logo">
+    <img src="/assets/logo/Prolight-light.png" class="nav-logo-light" alt="ProLight">
+    <img src="/assets/logo/Prolight-dark.png" class="nav-logo-dark" alt="ProLight">
+  </a>
+
+  <nav>
+    <a href="/#vision">About</a>
+    <a href="/#systems">Technologies</a>
+    <a href="/#news">News</a>
+    <a href="/#team">Team</a>
+  </nav>
+</header>
+
+<main class="blog-page">
+
+  <section class="blog-hero">
+    <div class="blog-hero-content">
+      <p class="breadcrumb">News › Conference</p>
+
+      <h1>T-REX Spotlight Presentation at IEEE ITSC 2026</h1>
+
+      <p class="blog-hero-subtitle">
+        ProLight research on robust, incident-aware traffic signal control was presented
+        at the <em>Traffic Control Optimization for Smart Cities</em> workshop during
+        IEEE ITSC 2026 in Naples, Italy.
+      </p>
+
+      <a href="https://link.springer.com/article/10.1186/s12544-026-00841-1"
+         class="btn primary blog-hero-btn"
+         target="_blank" rel="noopener">
+        Read the Paper
+      </a>
+    </div>
+  </section>
+
+  <section class="blog-content">
+
+    <aside class="blog-sidebar">
+      <a href="#overview">Overview</a>
+      <a href="#spotlight">Spotlight at ITSC 2026</a>
+      <a href="#trex">What is T-REX?</a>
+      <a href="#findings">Key message</a>
+      <a href="#prolight">Towards proactive control</a>
+      <a href="#resources">Paper & resources</a>
+    </aside>
+
+    <article class="blog-article">
+
+      <section id="overview">
+        <h2>Overview</h2>
+
+        <p>
+          On 15 September 2026, ProLight researcher <strong>Dang Viet Anh Nguyen</strong>
+          presented T-REX in a spotlight presentation at the
+          <em>Traffic Control Optimization for Smart Cities</em> workshop, held as part of
+          the 29th IEEE International Conference on Intelligent Transportation Systems
+          (IEEE ITSC 2026) in Naples, Italy.
+        </p>
+
+        <p>
+          The presentation focused on a central challenge for AI-based traffic signal
+          control: methods that perform well under normal traffic conditions may behave very
+          differently when incidents abruptly change traffic demand, network capacity, and
+          driver behavior. T-REX provides a reproducible environment for studying these
+          incident-driven distribution shifts and for evaluating how traffic control methods
+          respond, generalize, and adapt.
+        </p>
+
+        <figure class="blog-figure">
+          <img src="/assets/blog/itsc2026-trex-spotlight-01.jpg"
+               alt="Dang Viet Anh Nguyen presenting T-REX at IEEE ITSC 2026 in Naples">
+          <figcaption>
+            T-REX spotlight presentation at IEEE ITSC 2026 in Naples, Italy.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section id="spotlight">
+        <h2>Spotlight at IEEE ITSC 2026</h2>
+
+        <p>
+          The spotlight presentation introduced the motivation behind T-REX, the incident
+          modeling framework, and the robustness-oriented evaluation methodology developed
+          for reinforcement learning-based traffic signal control. The discussion emphasized
+          that traffic incidents create a fundamentally different control problem from
+          recurrent congestion because they can trigger rapid and spatially propagating
+          changes across the network.
+        </p>
+
+        <p>
+          Presenting the work at ITSC created an opportunity to discuss robustness-aware
+          traffic control with researchers working across intelligent transportation systems,
+          control, reinforcement learning, and smart-city mobility.
+        </p>
+      </section>
+
+      <section id="trex">
+        <h2>What is T-REX?</h2>
+
+        <p>
+          T-REX is an open-source, SUMO-based simulation framework for training and
+          evaluating traffic signal control methods under disruptive traffic incidents.
+          Instead of representing an incident only as a reduction in road capacity, T-REX
+          also models how drivers react to disruptions and how those reactions propagate
+          through the traffic network.
+        </p>
+
+        <p>
+          The framework supports lane blockages, probabilistic rerouting, speed adaptation,
+          contextual lane changing, and network-level congestion propagation. These features
+          make it possible to study not only traffic efficiency, but also the robustness,
+          transferability, and adaptation behavior of learning-based traffic signal control
+          methods under changing conditions.
+        </p>
+
+        <div class="blog-callout">
+          <strong>Core question:</strong>
+          Do traffic signal controllers that perform well under nominal conditions remain
+          reliable when incidents fundamentally change the traffic dynamics?
+        </div>
+      </section>
+
+      <section id="findings">
+        <h2>Key message</h2>
+
+        <p>
+          The study shows that strong nominal performance does not necessarily imply
+          robustness. Different reinforcement learning architectures can exhibit markedly
+          different failure, generalization, and adaptation patterns when exposed to
+          incident-induced distribution shifts.
+        </p>
+
+        <p>
+          This motivates a shift from evaluating traffic signal control only under stable
+          traffic demand toward benchmarking methods under realistic disruptions and
+          measuring how reliably they recover, transfer, and adapt.
+        </p>
+      </section>
+
+      <section id="prolight">
+        <h2>Towards proactive traffic signal control</h2>
+
+        <p>
+          T-REX also provides an experimental foundation for the next stage of ProLight:
+          developing proactive AI-based traffic control methods that can anticipate network
+          evolution rather than react only to the current traffic state.
+        </p>
+
+        <p>
+          In particular, the framework supports ongoing work on GNN-MPC, which combines
+          graph neural networks, model predictive control, and learned world models to predict
+          future traffic conditions and select signal-control actions before congestion
+          propagates through the network.
+        </p>
+      </section>
+
+      <section id="resources">
+        <h2>Paper and open-source resources</h2>
+
+        <p>
+          The work is now published open access in <em>European Transport Research Review</em>
+          under the title <em>“A framework for benchmarking traffic signal control robustness
+          under incidents: comparative study of reinforcement learning-based methods.”</em>
+        </p>
+
+        <p>
+          <strong>Published paper:</strong><br>
+          <a href="https://link.springer.com/article/10.1186/s12544-026-00841-1"
+             target="_blank" rel="noopener">
+            https://link.springer.com/article/10.1186/s12544-026-00841-1
+          </a>
+        </p>
+
+        <p>
+          <strong>T-REX tutorial and getting-started guide:</strong><br>
+          <a href="https://ai-prolight.eu/news/trex/">
+            https://ai-prolight.eu/news/trex/
+          </a>
+        </p>
+
+        <p>
+          <strong>Learn more about ProLight:</strong><br>
+          <a href="https://ai-prolight.eu/">
+            https://ai-prolight.eu/
+          </a>
+        </p>
+      </section>
+
+    </article>
+  </section>
+
+</main>
+
+</body>
+</html>
