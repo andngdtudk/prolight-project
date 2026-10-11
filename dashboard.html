@@ -367,7 +367,7 @@ c12 56 515 2935 515 2951 0 16 -21 17 -332 15 l-332 -3 -103 -585 c-56 -322
   <section class="pl-runs" aria-labelledby="pl-runs-title">
     <h2 id="pl-runs-title">Runs</h2>
     <div class="pl-table-wrap"><table class="pl-table">
-      <thead><tr><th>Method</th><th>Network</th><th>Scenario</th><th>Seed</th><th>Status</th><th>Network ATT</th><th>Throughput</th><th>Started</th></tr></thead>
+      <thead><tr><th>Method</th><th>Network</th><th>Scenario</th><th>Seed</th><th>Status</th><th>Map</th><th>Network ATT</th><th>Throughput</th><th>Started</th></tr></thead>
       <tbody id="pl-runs-body"></tbody></table></div>
   </section>
 </main>
@@ -695,7 +695,7 @@ function showEmpty(msg) { $("pl-empty").innerHTML = msg; $("pl-empty").classList
 async function refreshRuns() {
   S.runs = await S.src.listRuns();
   for (const r of selected()) { const n = S.runs.find((x) => x.id === r.id); if (n) Object.assign(r, n); }
-  $("pl-run").innerHTML = S.runs.map((r) => `<option value="${esc(r.id)}">${esc(runName(r))} · ${esc(r.network || "")} ${esc(scen(r))}${isLive(r) ? " · live" : ""}</option>`).join("");
+  $("pl-run").innerHTML = S.runs.map((r) => `<option value="${esc(r.id)}">${esc(runName(r))} · ${esc(r.network || "")} ${esc(scen(r))}${isLive(r) ? " · live" : ""}${r.source === "recorder" ? " · with vehicles" : " · queues only"}</option>`).join("");
   if (S.primary) $("pl-run").value = S.primary.id;
   renderRuns(); renderCompareChips(); refreshStatus();
   renderMethods().catch((e) => console.warn(e));
@@ -707,12 +707,18 @@ async function ensureData(r) {
   const d = { intervals: intervals.map(normIv), events: events.sort((a, b) => (a.t ?? -1) - (b.t ?? -1)), network }; S.data.set(r.id, d); return d;
 }
 
+let openSeq = 0;
 async function openRun(id, compareIds = [], t = null) {
+  const primary = S.runs.find((r) => r.id === id); if (!primary) return;
+  const peer = (r) => r.network === primary.network && r.scenario === primary.scenario && r.sumo_seed === primary.sumo_seed;
+  const compare = compareIds.map((c) => S.runs.find((r) => r.id === c)).filter((r) => r && r.id !== id && peer(r)).slice(0, 2);
+  const seq = ++openSeq;
+  $("pl-run").value = id; setStatus("connecting", "Loading run");
+  await Promise.all([primary, ...compare].map(ensureData));   // download first …
+  if (seq !== openSeq) return;                                  // … a newer selection won the race
   if (S.unsub) { S.unsub(); S.unsub = null; }
-  S.primary = S.runs.find((r) => r.id === id); if (!S.primary) return;
-  S.compare = compareIds.map((c) => S.runs.find((r) => r.id === c)).filter((r) => r && r.id !== id && peerOf(r)).slice(0, 2);
-  $("pl-run").value = id; $("pl-empty").classList.remove("show");
-  await Promise.all(selected().map(ensureData));
+  S.primary = primary; S.compare = compare;                     // … then switch
+  $("pl-empty").classList.remove("show");
   S.playing = false; S.follow = isLive(S.primary);
   const inc = scheduled(runData(id).events).sort((x, y) => x.start_time - y.start_time)[0];
   S.t = t != null ? t : S.follow ? maxT(S.primary) : inc ? Math.min(inc.start_time + 360, maxT(S.primary)) : 0;
@@ -862,7 +868,7 @@ function drawMap(m, dt) {
     ctx.beginPath(); ctx.moveTo(px - 4, py - 4); ctx.lineTo(px + 4, py + 4); ctx.moveTo(px + 4, py - 4); ctx.lineTo(px - 4, py + 4); ctx.stroke();
   }
   m.q.textContent = st && st.queue_total != null ? ` · ${nf0.format(st.queue_total)} queued` : "";
-  m.note.textContent = !flow && st ? "Recorded before flow data was logged: queues only" : (S.t > maxT(m.run) && isLive(m.run) ? "Waiting for this run to reach this time" : "");
+  m.note.textContent = !flow && st ? "Imported from result files: queues only, no vehicle data. Vehicles appear for runs recorded with --dashboard." : (S.t > maxT(m.run) && isLive(m.run) ? "Waiting for this run to reach this time" : "");
 }
 
 /* ======================================================================== chart */
@@ -880,7 +886,7 @@ function drawChart() {
   const xMax = Math.max(...selected().map((x) => x.end_time || 3600)), yMaxRaw = Math.max(...pts.map((d) => d[key]));
   const yMin = 0, yMax = yMaxRaw * 1.12 || 1, X = (v) => L + v / xMax * pw, Y = (v) => T + (yMax - v) / (yMax - yMin) * ph;
   ctx.fillStyle = css("--amber"); ctx.globalAlpha = .1;
-  for (const inc of scheduled(runData(S.primary.id).events)) ctx.fillRect(X(inc.start_time), T, X(inc.start_time + inc.duration_time) - X(inc.start_time), ph);
+  for (const inc of scheduled(runData(S.primary.id)?.events || [])) ctx.fillRect(X(inc.start_time), T, X(inc.start_time + inc.duration_time) - X(inc.start_time), ph);
   ctx.globalAlpha = 1; ctx.strokeStyle = css("--border"); ctx.lineWidth = 1; ctx.fillStyle = css("--muted"); ctx.textAlign = "right"; ctx.textBaseline = "middle";
   for (let k = 0; k <= 4; k++) { const v = yMax * k / 4; ctx.beginPath(); ctx.moveTo(L, Y(v)); ctx.lineTo(W - R, Y(v)); ctx.stroke(); ctx.fillText(CHART[key].fmt(v), L - 10, Y(v)); }
   ctx.textAlign = "center"; ctx.textBaseline = "top";
@@ -906,7 +912,8 @@ cw.addEventListener("click", (e) => { const t = chartT(e); if (t != null) seek(t
 
 /* ======================================================================== text panels */
 function renderRail() {
-  const r = S.primary, st = stateAt(r, Math.min(S.t, maxT(r))), d = runData(r.id);
+  const r = S.primary, d = runData(r?.id); if (!r || !d) return;
+  const st = stateAt(r, Math.min(S.t, maxT(r)));
   $("m-queue").innerHTML = `${st?.queue_total != null ? nf0.format(st.queue_total) : "—"}<small>veh</small>`;
   $("m-veh").textContent = st?.vehicles != null ? nf0.format(st.vehicles) : "—";
   $("m-arr").textContent = st?.arrived_cum != null ? `Completed trips so far ${nf0.format(st.arrived_cum)}` : "Not recorded for this run";
@@ -944,7 +951,7 @@ $("pl-compare").addEventListener("click", async (e) => {
   buildMaps(); renderAll(); syncUrl();
 });
 function renderCmp() {
-  const runs = selected(); $("pl-cmp").hidden = runs.length < 2; if (runs.length < 2) return;
+  const runs = selected().filter((r) => runData(r.id)); $("pl-cmp").hidden = runs.length < 2; if (runs.length < 2) return;
   $("pl-cmp-head").innerHTML = `<tr><th>At ${hms(S.t)}</th>${runs.map((r, i) => `<th><span style="display:inline-block;width:14px;border-top:2px ${i ? "dashed" : "solid"} var(${RUN_COLORS[i]});vertical-align:middle;margin-right:8px"></span>${esc(runName(r))}</th>`).join("")}</tr>`;
   const row = (label, vals, fmt, lowerBetter) => { const nums = vals.filter((v) => v != null), best = nums.length > 1 ? (lowerBetter ? Math.min(...nums) : Math.max(...nums)) : null; return `<tr><td>${label}</td>${vals.map((v) => `<td class="v${v != null && v === best ? " best" : ""}">${v == null ? "—" : fmt(v)}</td>`).join("")}</tr>`; };
   const st = runs.map((r) => stateAt(r, Math.min(S.t, maxT(r))));
@@ -963,7 +970,8 @@ function renderRuns() {
   const b = $("pl-runs-body");
   b.innerHTML = S.runs.length ? S.runs.map((r) => `<tr tabindex="0" data-id="${esc(r.id)}" aria-selected="${S.primary?.id === r.id}"><td>${esc(runName(r))}</td><td>${esc(r.network || "—")}</td><td>${esc(r.scenario || "—")}</td><td class="v">${r.sumo_seed ?? "—"}</td>
     <td><span class="pl-badge" data-s="${esc(r.status)}"><i></i>${r.status === "running" ? "Running" : r.status === "failed" ? "Failed" : "Finished"}</span></td>
-    <td class="v">${r.final ? nf1.format(r.final.network_att) + " s" : "—"}</td><td class="v">${r.final ? nf0.format(r.final.throughput) : "—"}</td><td>${rel(r.started_at)}</td></tr>`).join("") : `<tr><td colspan="8" style="color:var(--muted)">No runs yet.</td></tr>`;
+    <td>${r.source === "recorder" ? "Vehicles" : "<span style=\"color:var(--muted)\">Queues only</span>"}</td>
+    <td class="v">${r.final ? nf1.format(r.final.network_att) + " s" : "—"}</td><td class="v">${r.final ? nf0.format(r.final.throughput) : "—"}</td><td>${rel(r.started_at)}</td></tr>`).join("") : `<tr><td colspan="9" style="color:var(--muted)">No runs yet.</td></tr>`;
 }
 $("pl-runs-body").addEventListener("click", (e) => { const tr = e.target.closest("tr[data-id]"); if (tr) openRun(tr.dataset.id); });
 $("pl-runs-body").addEventListener("keydown", (e) => { if (e.key === "Enter") { const tr = e.target.closest("tr[data-id]"); if (tr) openRun(tr.dataset.id); } });
@@ -1245,7 +1253,12 @@ new ResizeObserver(() => { if (MC.scenario) drawMcBars(); }).observe($("pl-mc-ba
 function renderAll() { renderPlayer(); renderRail(); renderLog(); renderCompareChips(); renderCmp(); renderRuns(); renderTabs(); requestDraw(); }
 let drawReq = false; function requestDraw() { drawReq = true; }
 let last = performance.now();
+let loopErrors = 0;
 function loop(now) {
+  try { frame(now); } catch (e) { if (loopErrors++ < 5) console.error("Dashboard drawing error:", e); }
+  requestAnimationFrame(loop);   // always keep drawing, even after an error
+}
+function frame(now) {
   const dt = Math.min(0.1, (now - last) / 1000); last = now;
   S.anim = !reduceMotion;
   if (S.primary) {
@@ -1257,7 +1270,6 @@ function loop(now) {
     if ((S.playing || drawReq) && uiDue) { S.lastUi = now; renderPlayer(); renderRail(); renderCmp(); if (S.playing) { renderLog(); } }
     if (S.anim || drawReq) { maps.forEach((m) => drawMap(m, dt)); drawChart(); drawReq = false; }
   }
-  requestAnimationFrame(loop);
 }
 setInterval(() => { if (S.primary && isLive(S.primary)) refreshStatus(); }, 15000);
 init();
