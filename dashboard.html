@@ -413,7 +413,7 @@ c12 56 515 2935 515 2951 0 16 -21 17 -332 15 l-332 -3 -103 -585 c-56 -322
 -13 90 -15 690 -15 l690 0 -5 -22 c-7 -31 -415 -2348 -415 -2359 0 -5 148 -9
 333 -9 l333 0 210 1193 210 1192 691 3 691 2 6 28 c13 63 96 547 96 559 0 11
 -305 13 -1714 13 l-1715 0 -10 -52z"/></g></svg>
-  <span>© ProLight · <span id="pl-auth-state"></span> <button type="button" id="pl-auth-btn">Team sign-in</button></span>
+  <span>© ProLight · <span id="pl-version" style="opacity:.75">Dashboard 2.6</span> · <span id="pl-auth-state"></span> <button type="button" id="pl-auth-btn">Team sign-in</button></span>
 </footer>
 
 <dialog class="pl-dialog" id="pl-auth-dialog">
@@ -438,6 +438,7 @@ c12 56 515 2935 515 2951 0 16 -21 17 -332 15 l-332 -3 -103 -585 c-56 -322
    The anon / publishable key is safe to publish: row-level security (schema_v2.sql)
    only exposes public runs, plus all runs to signed-in team members.
    ===================================================================================== */
+const PROLIGHT_DASHBOARD_VERSION = "2.6";   // shown in the footer; bump on every upload
 const PROLIGHT_DASHBOARD = {
   supabaseUrl: "https://lbrjstfzdivhfhmtahop.supabase.co",
   supabaseAnonKey: "sb_publishable_gcRTOu0RgzcEwh3aQXCOJQ_KiY6krT6",
@@ -446,6 +447,7 @@ const PROLIGHT_DASHBOARD = {
 
 (() => {
 "use strict";
+console.info("ProLight dashboard", PROLIGHT_DASHBOARD_VERSION);
 const $ = (id) => document.getElementById(id);
 const nf0 = new Intl.NumberFormat("en-GB", { maximumFractionDigits: 0 });
 const nf1 = new Intl.NumberFormat("en-GB", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
