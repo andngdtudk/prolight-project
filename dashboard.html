@@ -200,6 +200,8 @@ dialog.pl-dialog::backdrop{background:rgba(0,0,0,.55)}
 .pl-dialog input{width:100%;height:44px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);padding:0 14px;font-size:15px;margin-bottom:14px}
 .pl-dialog .row{display:flex;gap:10px;justify-content:flex-end}
 .pl-dialog [hidden]{display:none}
+.pl-auth-alt{font-size:13px;margin:-4px 0 18px;color:var(--muted)}
+.pl-auth-alt button{background:none;border:0;padding:0;color:var(--accent-ink);text-decoration:underline;cursor:pointer;font-size:13px}
 .pl-primary{height:40px;padding:0 18px;border-radius:var(--radius-button);border:0;background:var(--accent);color:var(--on-accent);font-weight:600;font-size:14px;cursor:pointer}
 
 @media (max-width:1100px){ .pl-stage,.pl-lower{grid-template-columns:1fr} .pl-maps[data-n="3"]{grid-template-columns:1fr} .pl-maps[data-n="3"],.pl-maps[data-n="2"]{height:auto} .pl-maps[data-n="2"] .pl-map,.pl-maps[data-n="3"] .pl-map{height:340px} }
@@ -415,13 +417,17 @@ c12 56 515 2935 515 2951 0 16 -21 17 -332 15 l-332 -3 -103 -585 c-56 -322
 </footer>
 
 <dialog class="pl-dialog" id="pl-auth-dialog">
-  <form method="dialog" id="pl-auth-form">
+  <form id="pl-auth-form" novalidate>
     <h2 id="pl-auth-title">Team sign-in</h2>
-    <p id="pl-auth-msg">Team members can see private and running experiments. Enter your work e-mail and we will send a sign-in link.</p>
+    <p id="pl-auth-msg"></p>
     <label class="sr" for="pl-email">E-mail</label>
-    <input type="email" id="pl-email" required placeholder="name@dtu.dk" autocomplete="email">
-    <p style="font-size:13px;margin:-4px 0 16px">Trouble signing in? <button type="button" id="pl-auth-reset" style="background:none;border:0;padding:0;color:var(--accent-ink);text-decoration:underline;cursor:pointer;font-size:13px">Reset sign-in in this browser</button></p>
-    <div class="row"><button class="pl-ghost" value="cancel" type="button" id="pl-auth-cancel">Close</button><button class="pl-ghost" type="button" id="pl-auth-out" hidden>Sign out</button><button class="pl-primary" id="pl-auth-send" type="submit">Send sign-in link</button></div>
+    <input type="email" id="pl-email" placeholder="name@dtu.dk" autocomplete="email">
+    <label class="sr" for="pl-pass">Password</label>
+    <input type="password" id="pl-pass" placeholder="Password" autocomplete="current-password" hidden>
+    <label class="sr" for="pl-code">Code from the e-mail</label>
+    <input type="text" id="pl-code" placeholder="Code from the e-mail" inputmode="numeric" autocomplete="one-time-code" maxlength="10" hidden>
+    <p class="pl-auth-alt" id="pl-auth-alt"><button type="button" id="pl-auth-mode">Use a password instead</button><span aria-hidden="true"> · </span><button type="button" id="pl-auth-reset">Reset sign-in in this browser</button></p>
+    <div class="row"><button class="pl-ghost" type="button" id="pl-auth-cancel">Close</button><button class="pl-ghost" type="button" id="pl-auth-out" hidden>Sign out</button><button class="pl-primary" id="pl-auth-send" type="submit">E-mail me a code</button></div>
   </form>
 </dialog>
 
@@ -513,6 +519,8 @@ class SupabaseSource {
     this.sb.auth.onAuthStateChange((event, s) => { if (event === "INITIAL_SESSION") return; setTimeout(() => cb(s), 0); });
   }
   async signIn(email) { const { error } = await this.sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.href.split("#")[0] } }); if (error) throw error; }
+  async verifyCode(email, token) { const { error } = await this.sb.auth.verifyOtp({ email, token, type: "email" }); if (error) throw error; }
+  async signInPassword(email, password) { const { error } = await this.sb.auth.signInWithPassword({ email, password }); if (error) throw error; }
   async signOut() { await this.sb.auth.signOut(); }
 }
 function normEvent(e) { return { kind: e.kind, t: e.t, ...(e.data || {}) }; }
@@ -626,7 +634,7 @@ class DemoSource {
   subscribe(id, h) { const l = { id, h }; this.listeners.add(l); setTimeout(() => h.onConnection && h.onConnection("SUBSCRIBED")); return () => this.listeners.delete(l); }
   subscribeRuns() { return () => {}; }
   async session() { return this.team === false ? null : new URLSearchParams(location.search).has("demo_team") ? { user: { email: "team@example.org" } } : null; }
-  onAuth() {} async signIn() { throw new Error("Sign-in is not available in demo mode."); } async signOut() { this.team = false; }
+  onAuth() {} async signIn() { throw new Error("Sign-in is not available in demo mode."); } async verifyCode() { throw new Error("Sign-in is not available in demo mode."); } async signInPassword() { throw new Error("Sign-in is not available in demo mode."); } async signOut() { this.team = false; }
 }
 
 /* ======================================================================== state */
@@ -990,6 +998,7 @@ document.querySelectorAll("#pl-ind-tabs button").forEach((b) => b.addEventListen
 function renderTabs() { document.querySelectorAll("#pl-ind-tabs button").forEach((b) => { const has = selected().some((r) => (runData(r.id)?.intervals || []).some((x) => x[b.dataset.metric] != null)); b.disabled = !has; }); }
 
 /* ======================================================================== auth */
+const AUTH = { mode: "code", step: "email" };   // mode: code | password; step: email | code
 async function updateAuthUi() {
   let s = null; try { s = await withTimeout(S.src.session(), 8000, "Reading the sign-in"); } catch (e) { console.warn(e); }
   S.session = s;
@@ -999,20 +1008,41 @@ async function updateAuthUi() {
   $("pl-team").hidden = !s; $("pl-team").textContent = `Team view · ${email}`;
   $("pl-team").title = "You can see private and running experiments";
 }
-function openAuthDialog() {
-  const s = S.session || null, signed = !!s;   // never wait on Supabase before showing the window
+function authView(msg) {
+  const signed = !!S.session, demo = S.src.mode === "demo";
   $("pl-auth-title").textContent = signed ? "Team view" : "Team sign-in";
-  $("pl-auth-msg").textContent = signed
-    ? `You are signed in as ${s.user.email}. You can see private and running experiments as well as public ones.`
-    : S.src.mode === "demo" ? "Sign-in becomes available once the dashboard is connected to its database."
-    : "Team members can see private and running experiments. Enter your work e-mail and we will send a sign-in link.";
-  $("pl-email").hidden = signed; $("pl-auth-send").hidden = signed; $("pl-auth-send").disabled = false; $("pl-auth-out").hidden = !signed;
-  $("pl-auth-dialog").showModal();
+  const show = (id, on) => ($(id).hidden = !on);
+  show("pl-email", !signed && !(AUTH.mode === "code" && AUTH.step === "code"));
+  show("pl-pass", !signed && AUTH.mode === "password");
+  show("pl-code", !signed && AUTH.mode === "code" && AUTH.step === "code");
+  show("pl-auth-alt", !signed); show("pl-auth-out", signed); show("pl-auth-send", !signed);
+  $("pl-auth-mode").textContent = AUTH.mode === "password" ? "E-mail me a code instead" : "Use a password instead";
+  $("pl-auth-send").textContent = AUTH.mode === "password" ? "Sign in" : AUTH.step === "code" ? "Verify code" : "E-mail me a code";
+  $("pl-auth-send").disabled = false;
+  $("pl-auth-msg").textContent = msg || (signed ? `You are signed in as ${S.session.user.email}. You can see private and running experiments as well as public ones.`
+    : demo ? "Sign-in becomes available once the dashboard is connected to its database."
+    : AUTH.mode === "password" ? "Sign in with the e-mail and password set up for you in the project's Supabase account."
+    : AUTH.step === "code" ? `We sent a code to ${$("pl-email").value.trim()}. Type it here. If your mail system opened the link in the e-mail first, the code still works.`
+    : "Team members can see private and running experiments. Enter your work e-mail and we will send you a sign-in code.");
 }
-$("pl-auth-btn").addEventListener("click", openAuthDialog);
-$("pl-team").addEventListener("click", openAuthDialog);
+function openAuthDialog(msg) { authView(msg); if (!$("pl-auth-dialog").open) $("pl-auth-dialog").showModal(); }
+function friendlyAuthError(err) {
+  const m = String(err?.message || err || "");
+  if (/rate limit/i.test(m)) return "Too many sign-in e-mails were sent in the last hour. Wait about an hour, or sign in with a password.";
+  if (/expired|invalid/i.test(m) && AUTH.step === "code") return "That code is not valid or has expired. Check the latest e-mail, or request a new code.";
+  if (/invalid login credentials/i.test(m)) return "E-mail or password is not correct.";
+  return m || "Sign-in failed. Try again.";
+}
+async function afterSignIn() {
+  AUTH.step = "email"; $("pl-code").value = ""; $("pl-pass").value = "";
+  await updateAuthUi(); $("pl-auth-dialog").close(); await refreshRuns();
+  if (!S.primary && S.runs.length) { $("pl-empty").classList.remove("show"); await openRun((S.runs.find(isLive) || S.runs[0]).id); }
+}
+$("pl-auth-btn").addEventListener("click", () => openAuthDialog());
+$("pl-team").addEventListener("click", () => openAuthDialog());
 $("pl-auth-cancel").addEventListener("click", () => $("pl-auth-dialog").close());
 $("pl-auth-reset").addEventListener("click", resetSignIn);
+$("pl-auth-mode").addEventListener("click", () => { AUTH.mode = AUTH.mode === "password" ? "code" : "password"; AUTH.step = "email"; authView(); });
 $("pl-auth-out").addEventListener("click", async () => {
   try { await withTimeout(S.src.signOut(), 8000, "Signing out"); } catch (e) { console.warn(e); return resetSignIn(); }
   $("pl-auth-dialog").close(); await updateAuthUi(); await refreshRuns();
@@ -1025,9 +1055,31 @@ $("pl-auth-out").addEventListener("click", async () => {
 });
 $("pl-auth-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  try { await S.src.signIn($("pl-email").value.trim()); $("pl-auth-msg").textContent = "Sign-in link sent. Open it in this browser to continue."; $("pl-auth-send").disabled = true; }
-  catch (err) { $("pl-auth-msg").textContent = err.message || "Sign-in failed. Check the address and try again."; }
+  const email = $("pl-email").value.trim(), btn = $("pl-auth-send");
+  if (AUTH.step === "email" && !/^\S+@\S+\.\S+$/.test(email)) return authView("Enter your e-mail address.");
+  btn.disabled = true;
+  try {
+    if (AUTH.mode === "password") {
+      if (!$("pl-pass").value) { btn.disabled = false; return authView("Enter your password."); }
+      await withTimeout(S.src.signInPassword(email, $("pl-pass").value), 15000, "Signing in");
+      return afterSignIn();
+    }
+    if (AUTH.step === "email") { await withTimeout(S.src.signIn(email), 15000, "Sending the e-mail"); AUTH.step = "code"; authView(); $("pl-code").focus(); return; }
+    const code = $("pl-code").value.replace(/\s/g, "");
+    if (!/^\d{6,10}$/.test(code)) { btn.disabled = false; return authView("Enter the code from the e-mail (numbers only)."); }
+    await withTimeout(S.src.verifyCode(email, code), 15000, "Checking the code");
+    return afterSignIn();
+  } catch (err) { console.warn(err); authView(friendlyAuthError(err)); }
 });
+/* Sign-in links that were already used (often by a mail scanner) come back with an error in the address. */
+(function handleLinkError() {
+  const h = new URLSearchParams(location.hash.slice(1)); if (!h.get("error_code") && !h.get("error")) return;
+  history.replaceState(null, "", location.pathname + location.search);
+  const msg = h.get("error_code") === "otp_expired"
+    ? "That sign-in link had expired or was already used. Mail filters sometimes open links before you do. Request a code instead and type it here."
+    : `Sign-in did not complete: ${h.get("error_description") || h.get("error")}.`;
+  setTimeout(() => openAuthDialog(msg), 300);
+})();
 
 /* ======================================================================== method comparison */
 const MC = { scenario: null, metric: "network_att", series: new Map(), events: new Map(), lineGeom: null, barsGeom: null, hover: null };
