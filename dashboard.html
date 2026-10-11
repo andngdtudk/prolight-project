@@ -159,6 +159,23 @@ button,select,input{font-family:inherit}
 .pl-table tr:last-child td{border-bottom:none}
 .pl-table td.v{font-variant-numeric:tabular-nums}
 .pl-table .best{font-weight:600;color:var(--text)}
+.pl-mc{margin-top:72px}
+.pl-mc-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px 32px;margin-bottom:20px}
+.pl-mc-head h2{font-size:clamp(1.6rem,3vw,2.4rem);font-weight:400;letter-spacing:-.05em;margin:0}
+.pl-mc-head p{margin:8px 0 0;color:var(--muted);font-size:15px;max-width:720px}
+.pl-mc .pl-panel{margin-bottom:24px}
+.pl-mc-legend{display:flex;flex-wrap:wrap;gap:8px 22px;padding:14px 28px 0;font-size:13px;color:var(--muted)}
+.pl-mc-legend span{display:inline-flex;align-items:center;gap:8px}
+.pl-mc-legend i{width:22px;height:0;border-top:2px solid var(--c)}
+.pl-mc-legend i.dot{border-top-style:dotted}
+.pl-mc-legend i.dash{border-top-style:dashed}
+.pl-mc-legend i.bar{width:12px;height:12px;border:0;border-radius:2px;background:var(--c)}
+.pl-mc-legend i.ref{width:12px;height:12px;border:1.5px solid var(--c);border-radius:2px;background:transparent}
+.pl-mc-cap{padding:6px 28px 22px;font-size:13px;color:var(--muted)}
+.pl-mc-chart{position:relative;height:340px;margin:8px 12px 0}
+.pl-mc-chart canvas{position:absolute;inset:0;width:100%;height:100%}
+.pl-mc-bars{cursor:pointer}
+.pl-mc-empty{padding:40px 28px;color:var(--muted);font-size:15px}
 .pl-runs{margin-top:72px}
 .pl-runs h2,.pl-cmp h2{font-size:clamp(1.6rem,3vw,2.4rem);font-weight:400;letter-spacing:-.05em;margin:0 0 20px}
 .pl-runs .pl-table{min-width:860px}
@@ -296,7 +313,7 @@ c12 56 515 2935 515 2951 0 16 -21 17 -332 15 l-332 -3 -103 -585 c-56 -322
     <div class="pl-panel">
       <div class="pl-panel-head">
         <h2 id="pl-chart-title">Queued at signals</h2>
-        <div class="pl-tabs" role="tablist" aria-label="Indicator">
+        <div class="pl-tabs" id="pl-ind-tabs" role="tablist" aria-label="Indicator">
           <button role="tab" data-metric="queue_total" aria-selected="true">Queued</button>
           <button role="tab" data-metric="wait_total" aria-selected="false">Waiting</button>
           <button role="tab" data-metric="vehicles" aria-selected="false">In network</button>
@@ -314,6 +331,30 @@ c12 56 515 2935 515 2951 0 16 -21 17 -332 15 l-332 -3 -103 -585 c-56 -322
   <section class="pl-cmp" id="pl-cmp" hidden aria-labelledby="pl-cmp-title">
     <h2 id="pl-cmp-title">Side by side</h2>
     <div class="pl-table-wrap"><table class="pl-table"><thead id="pl-cmp-head"></thead><tbody id="pl-cmp-body"></tbody></table></div>
+  </section>
+
+  <section class="pl-mc" aria-labelledby="pl-mc-title">
+    <div class="pl-mc-head">
+      <div><h2 id="pl-mc-title">Method comparison</h2><p id="pl-mc-sub">Finished runs, averaged over seeds.</p></div>
+      <div class="pl-tabs" id="pl-mc-scen" role="tablist" aria-label="Scenario"></div>
+    </div>
+    <div class="pl-panel">
+      <div class="pl-panel-head"><h2 id="pl-mc-line-title">Queued at signals over time</h2><button class="pl-ghost" id="pl-mc-open" type="button">Replay this scenario side by side</button></div>
+      <div class="pl-mc-legend" id="pl-mc-legend"></div>
+      <div class="pl-mc-chart" id="pl-mc-line-wrap"><canvas id="pl-mc-line" role="img" aria-label="Mean queued vehicles over simulation time per method, with one standard deviation band"></canvas><div class="pl-tip" id="pl-mc-tip"></div></div>
+      <p class="pl-mc-cap" id="pl-mc-line-cap"></p>
+    </div>
+    <div class="pl-panel">
+      <div class="pl-panel-head"><h2>Final results by scenario</h2>
+        <div class="pl-tabs" id="pl-mc-metric" role="tablist" aria-label="Final metric">
+          <button role="tab" data-m="network_att" aria-selected="true">Network ATT</button><button role="tab" data-m="traveller_att" aria-selected="false">Traveller ATT</button>
+          <button role="tab" data-m="throughput" aria-selected="false">Throughput</button><button role="tab" data-m="network_awt" aria-selected="false">Network AWT</button>
+        </div></div>
+      <div class="pl-mc-legend" id="pl-mc-legend2"></div>
+      <div class="pl-mc-chart pl-mc-bars" id="pl-mc-bars-wrap"><canvas id="pl-mc-bars" role="img" aria-label="Mean final metric per method and scenario with one standard deviation error bars; click a scenario to select it"></canvas></div>
+      <p class="pl-mc-cap" id="pl-mc-bars-cap"></p>
+      <div style="padding:0 28px 28px"><div class="pl-table-wrap"><table class="pl-table"><thead id="pl-mc-thead"></thead><tbody id="pl-mc-tbody"></tbody></table></div></div>
+    </div>
   </section>
 
   <section class="pl-runs" aria-labelledby="pl-runs-title">
@@ -410,7 +451,7 @@ try { if (localStorage.getItem(PROLIGHT_DASHBOARD.themeStorageKey) === "light") 
 $("pl-theme").addEventListener("click", () => {
   document.body.classList.toggle("dark");
   try { localStorage.setItem(PROLIGHT_DASHBOARD.themeStorageKey, document.body.classList.contains("dark") ? "dark" : "light"); } catch (e) {}
-  maps.forEach((m) => (m.baseDirty = true)); requestDraw();
+  maps.forEach((m) => (m.baseDirty = true)); requestDraw(); if (typeof drawMc === "function") drawMc();
 });
 $("pl-menu-btn").addEventListener("click", () => { const o = $("pl-nav").classList.toggle("open"); $("pl-menu-btn").setAttribute("aria-expanded", String(o)); });
 
@@ -443,6 +484,7 @@ class SupabaseSource {
     }
     return all;
   }
+  async loadSeries(id) { const { data, error } = await this.sb.from("intervals").select("t,queue_total").eq("run_id", id).order("k").range(0, 999); if (error) throw error; return data; }
   async loadEvents(id) { const { data, error } = await this.sb.from("events").select("kind,t,data").eq("run_id", id).order("t"); if (error) throw error; return data.map(normEvent); }
   subscribe(id, h) {
     const ch = this.sb.channel(`run-${id}`)
@@ -467,18 +509,26 @@ function normIv(iv) {
   return x;
 }
 
-/* Demo: a 4×4 signalised grid shaped like the T-REX Grid 4×4 network (16 signals, 80 directed edges). */
+/* Demo: a 4×4 signalised grid shaped like the T-REX Grid 4×4 network (16 signals, 80 directed edges).
+   3 scenarios × 3 methods × 3 seeds, at the magnitudes of the recorded runs. All values are synthetic. */
+function hashStr(str) { let h = 2166136261; for (const c of str) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
 class DemoSource {
   constructor() {
     this.mode = "demo"; this.net = this.buildNet();
-    const now = Date.now();
-    const base = { network: "grid4x4", sumo_seed: 0, total_decisions: 350, control_interval: 10, end_time: 3600, signal_ids: this.signals.map((s) => s.id), source: "recorder", public: true };
-    this.runs = [
-      { ...base, id: "demo-a", method: "Method A", scenario: "E2", status: "running", started_at: new Date(now - 3 * 3600e3).toISOString(), profile: 0 },
-      { ...base, id: "demo-b", method: "Baseline B", scenario: "E2", status: "finished", started_at: new Date(now - 26 * 3600e3).toISOString(), profile: .45 },
-      { ...base, id: "demo-c", method: "Baseline C", scenario: "E2", status: "finished", started_at: new Date(now - 27 * 3600e3).toISOString(), profile: .8 },
-      { ...base, id: "demo-d", method: "Baseline B", scenario: "E3", status: "finished", source: "import", started_at: new Date(now - 9 * 86400e3).toISOString(), profile: .45 }
-    ];
+    this.byId = Object.fromEntries(this.net.features.map((f) => [f.properties.id, f]));
+    this.incoming = this.signals.map((sg) => this.net.edge_order.map((id, i) => [id, i]).filter(([id]) => this.byId[id].properties.to === sg.id).map(([, i]) => i));
+    const now = Date.now(), base = { network: "grid4x4", total_decisions: 350, control_interval: 10, end_time: 3600, signal_ids: this.signals.map((s) => s.id), public: true };
+    const methods = [["Method A", 0], ["Baseline B", .45], ["Fixed-Time", .85]];
+    this.runs = [];
+    let n = 0;
+    for (const sc of ["E1", "E2", "E3"]) for (const [m, p] of methods) for (let seed = 0; seed < 3; seed++) {
+      const live = sc === "E2" && m === "Method A" && seed === 0;
+      this.runs.push({ ...base, id: `demo-${sc}-${m.replace(/\W/g, "").toLowerCase()}-${seed}`, method: m, scenario: sc, sumo_seed: seed,
+        status: live ? "running" : "finished", source: sc === "E3" ? "import" : "recorder",
+        started_at: new Date(now - (live ? 3 : 20 + n++) * 3600e3).toISOString(), profile: p + (seed - 1) * .07 });
+    }
+    this.runs.sort((a, b) => new Date(b.started_at) - new Date(a.started_at));
+    this.liveRun = this.runs.find((r) => r.status === "running");
     this.liveK = 150; this.cache = new Map(); this.listeners = new Set();
     for (const r of this.runs) if (r.status === "finished") r.final = this.final(r);
     this.timer = setInterval(() => this.tick(), 1600);
@@ -493,29 +543,25 @@ class DemoSource {
     for (let k = 0; k < 4; k++) pairs.push([`left${k}`, `A${k}`], [`D${k}`, `right${k}`], [`bottom${k}`, `${L[k]}0`], [`${L[k]}3`, `top${k}`]);
     const addEdge = (a, b) => {
       const [x1, y1] = nodes[a], [x2, y2] = nodes[b], len = Math.hypot(x2 - x1, y2 - y1), ux = (x2 - x1) / len, uy = (y2 - y1) / len;
-      const off = 6, nx = uy * off, ny = -ux * off, sh = (n) => /\d$/.test(n) && n.length === 2 ? 16 : 0;
-      const id = `${a}${b}`; order.push(id);
+      const off = 6, nx = uy * off, ny = -ux * off, sh = (nm) => /^[A-D]\d$/.test(nm) ? 16 : 0, id = `${a}${b}`; order.push(id);
       feats.push({ type: "Feature", properties: { id, from: a, to: b, lanes: 3, speed: 13.89, length: len }, geometry: { type: "LineString", coordinates: [[x1 + ux * sh(a) + nx, y1 + uy * sh(a) + ny], [x2 - ux * sh(b) + nx, y2 - uy * sh(b) + ny]] } });
     };
     for (const [a, b] of pairs) { addEdge(a, b); addEdge(b, a); }
-    this.signals = Object.keys(nodes).filter((n) => /^[A-D]\d$/.test(n)).map((id) => ({ id, c: nodes[id] }));
-    this.signals.forEach((s) => feats.push({ type: "Feature", properties: { id: s.id, type: "traffic_light" }, geometry: { type: "Point", coordinates: s.c } }));
-    this.incEdge = "B1C1";
+    this.signals = Object.keys(nodes).filter((nm) => /^[A-D]\d$/.test(nm)).map((id) => ({ id, c: nodes[id] }));
+    this.signals.forEach((sg) => feats.push({ type: "Feature", properties: { id: sg.id, type: "traffic_light" }, geometry: { type: "Point", coordinates: sg.c } }));
     return { type: "FeatureCollection", properties: { network_id: "grid4x4", flipY: true }, features: feats, edge_order: order, edge_order_ref: "grid4x4@demo" };
   }
   incidents(run) {
-    return run.scenario === "E3"
-      ? [{ incident_id: "inc0", edge: "C2C1", lanes: [0, 1], pos: 140, start_time: 1680, duration_time: 600 }]
-      : [{ incident_id: "inc0", edge: this.incEdge, lanes: [0, 1], pos: 150, start_time: 1060, duration_time: 540 },
-         { incident_id: "inc1", edge: "C3C2", lanes: [2], pos: 210, start_time: 2768, duration_time: 420 }];
+    if (run.scenario === "E1") return [{ incident_id: "inc0", edge: "A2B2", lanes: [1, 2], pos: 160, start_time: 720, duration_time: 480 }];
+    if (run.scenario === "E3") return [{ incident_id: "inc0", edge: "C2C1", lanes: [0, 1], pos: 140, start_time: 1680, duration_time: 600 }];
+    return [{ incident_id: "inc0", edge: "B1C1", lanes: [0, 1], pos: 150, start_time: 1060, duration_time: 540 },
+            { incident_id: "inc1", edge: "C3C2", lanes: [2], pos: 210, start_time: 2768, duration_time: 420 }];
   }
   interval(run, k) {
-    /* Magnitudes follow the recorded Grid 4x4 runs: 0-5 vehicles per road, 0-3 queued per signal (up to ~8 near an incident). */
-    const t = 111 + k * 10, r = this.rng(k * 97 + run.id.charCodeAt(5) * 7919);
-    const feats = this.net.features, byId = Object.fromEntries(feats.map((f) => [f.properties.id, f]));
+    const t = 111 + k * 10, r = this.rng(hashStr(run.id) + k * 97);
     const demand = .7 + .3 * Math.sin(Math.PI * t / 3600);
     const field = this.incidents(run).map((inc) => {
-      const g = byId[inc.edge].geometry.coordinates, p = [(g[0][0] + g[1][0]) / 2, (g[0][1] + g[1][1]) / 2];
+      const g = this.byId[inc.edge].geometry.coordinates, p = [(g[0][0] + g[1][0]) / 2, (g[0][1] + g[1][1]) / 2];
       const since = t - inc.start_time, after = t - (inc.start_time + inc.duration_time);
       let a = since >= 0 ? Math.min(1, since / 300) : 0;
       if (after > 0) a *= Math.exp(-after / (160 + 380 * run.profile));
@@ -524,13 +570,13 @@ class DemoSource {
     });
     const speed = [], count = [], occ = [];
     for (const id of this.net.edge_order) {
-      const g = byId[id].geometry.coordinates, mx = (g[0][0] + g[1][0]) / 2, my = (g[0][1] + g[1][1]) / 2;
+      const g = this.byId[id].geometry.coordinates, mx = (g[0][0] + g[1][0]) / 2, my = (g[0][1] + g[1][1]) / 2;
       let c = 0; for (const f of field) c = Math.max(c, (f.inc.edge === id ? 1 : .9) * f.a * Math.exp(-Math.hypot(mx - f.p[0], my - f.p[1]) / f.reach));
       c = clamp(c, 0, 1);
-      const sp = 13.89 * clamp(.96 - .78 * c + (r() - .5) * .1, .05, 1.04), n = Math.max(0, Math.round(demand * (.6 + r() * 2.2) + 6 * c));
+      const sp = 13.89 * clamp(.96 - .78 * c + (r() - .5) * .1, .05, 1.04), n = Math.max(0, Math.round(demand * (.6 + r() * 2.2) * (1 + .15 * run.profile) + 6 * c));
       speed.push(+sp.toFixed(3)); count.push(n); occ.push(+clamp(n * 7.5 / (280 * 3), 0, 1).toFixed(3));
     }
-    const q = this.signals.map((s) => { let sum = 0; for (const f of feats) if (f.properties.to === s.id) { const i = this.net.edge_order.indexOf(f.properties.id); sum += count[i] * clamp(1 - speed[i] / 13.89, 0, 1); } return Math.round(sum * .9 + (r() < .35 * demand ? 1 : 0)); });
+    const q = this.incoming.map((idx) => { let sum = 0; for (const i of idx) sum += count[i] * clamp(1 - speed[i] / 13.89, 0, 1); return Math.round(sum * .9 + (r() < (.3 + .25 * run.profile) * demand ? 1 : 0)); });
     const qt = q.reduce((a, b) => a + b, 0), act = this.incidents(run).filter((i) => t >= i.start_time && t <= i.start_time + i.duration_time).length;
     const imported = run.source === "import";
     return { k, t, wall_at: imported ? null : 1791715060 + k * (run.method === "Method A" ? 70 : 0.01), decision_s: imported ? null : run.method === "Method A" ? +(68.6 + r() * 3).toFixed(1) : 0,
@@ -539,20 +585,22 @@ class DemoSource {
       signals: { q, mq: q.map((v) => Math.ceil(v / 2)), p: q.map((v) => v - 1), ph: imported ? null : q.map((_, i) => (k + i) % 8) },
       edges: imported ? { speed: null, count: null, occ: null } : { speed, count, occ } };
   }
-  final(run) { const p = run.profile; return { network_att: +(158 + 22 * p).toFixed(1), traveller_att: +(161 + 25 * p).toFixed(1), throughput: Math.round(1452 - 34 * p), network_awt: +(21 + 9 * p).toFixed(1) }; }
+  final(run) { const p = run.profile, r = this.rng(hashStr(run.id) + 7), sc = { E1: -6, E2: 0, E3: 9 }[run.scenario] || 0;
+    return { network_att: +(158 + sc + 22 * p + (r() - .5) * 4).toFixed(1), traveller_att: +(161 + sc + 25 * p + (r() - .5) * 4).toFixed(1), throughput: Math.round(1452 - sc - 34 * p + (r() - .5) * 8), network_awt: +(21 + sc / 3 + 9 * p + (r() - .5) * 2).toFixed(1) }; }
   intervalsFor(run) { const n = run.status === "running" ? this.liveK : run.total_decisions; const key = `${run.id}:${n}`; if (!this.cache.has(key)) { const out = []; for (let k = 0; k < n; k++) out.push(this.interval(run, k)); this.cache.set(key, out); } return this.cache.get(key); }
-  eventsFor(run, tMax) {  /* incident_start / incident_end carry the scheduled moment as t, as the recorder does */
+  eventsFor(run, tMax) {
     const ev = [{ kind: "run_start", t: 0 }];
-    for (const i of this.incidents(run)) { ev.push({ kind: "incident_scheduled", t: 0, ...i }, { kind: "incident_start", t: i.start_time, ...i }, { kind: "incident_end", t: i.start_time + i.duration_time, ...i }); }
+    for (const i of this.incidents(run)) ev.push({ kind: "incident_scheduled", t: null, ...i }, { kind: "incident_start", t: i.start_time, ...i }, { kind: "incident_end", t: i.start_time + i.duration_time, ...i });
     if (run.status !== "running") ev.push({ kind: "episode_end", t: 3601 });
     return ev.filter((e) => e.kind === "incident_scheduled" || e.t <= tMax);
   }
   async listRuns() { return this.runs.map(({ profile, ...r }) => ({ ...r, progress_k: r.status === "running" ? this.liveK : r.total_decisions, last_update_at: r.status === "running" ? new Date(Date.now() - 20e3).toISOString() : r.started_at })); }
   async loadNetwork() { return this.net; }
   async loadIntervals(id) { return this.intervalsFor(this.runs.find((r) => r.id === id)).map((x) => ({ ...x })); }
+  async loadSeries(id) { return this.intervalsFor(this.runs.find((r) => r.id === id)).map((x) => ({ t: x.t, queue_total: x.queue_total })); }
   async loadEvents(id) { const r = this.runs.find((x) => x.id === id); return this.eventsFor(r, r.status === "running" ? 111 + (this.liveK - 1) * 10 : 3601); }
   tick() {
-    const run = this.runs[0]; if (this.liveK >= run.total_decisions) return;
+    const run = this.liveRun; if (!run || this.liveK >= run.total_decisions) return;
     const rec = this.interval(run, this.liveK); this.liveK++;
     for (const l of this.listeners) if (l.id === run.id) {
       l.h.onInterval(rec);
@@ -615,6 +663,7 @@ async function refreshRuns() {
   $("pl-run").innerHTML = S.runs.map((r) => `<option value="${esc(r.id)}">${esc(runName(r))} · ${esc(r.network || "")} ${esc(scen(r))}${isLive(r) ? " · live" : ""}</option>`).join("");
   if (S.primary) $("pl-run").value = S.primary.id;
   renderRuns(); renderCompareChips(); refreshStatus();
+  renderMethods().catch((e) => console.warn(e));
 }
 
 async function ensureData(r) {
@@ -906,12 +955,12 @@ $("pl-restart").addEventListener("click", () => seek(0));
 $("pl-speed").addEventListener("change", (e) => (S.speed = +e.target.value));
 $("pl-live").addEventListener("click", () => { S.follow = !S.follow; S.playing = false; if (S.follow) S.t = maxT(S.primary); renderAll(); syncUrl(); });
 $("pl-copy").addEventListener("click", async () => { syncUrl(); try { await navigator.clipboard.writeText(location.href); $("pl-copy").textContent = "Link copied"; } catch (e) { $("pl-copy").textContent = "Copy the address bar"; } setTimeout(() => ($("pl-copy").textContent = "Copy link to this view"), 1800); });
-document.querySelectorAll(".pl-tabs button").forEach((b) => b.addEventListener("click", () => {
+document.querySelectorAll("#pl-ind-tabs button").forEach((b) => b.addEventListener("click", () => {
   if (b.disabled) return; S.metric = b.dataset.metric;
-  document.querySelectorAll(".pl-tabs button").forEach((x) => x.setAttribute("aria-selected", String(x === b)));
+  document.querySelectorAll("#pl-ind-tabs button").forEach((x) => x.setAttribute("aria-selected", String(x === b)));
   $("pl-chart-title").textContent = CHART[S.metric].title; requestDraw();
 }));
-function renderTabs() { document.querySelectorAll(".pl-tabs button").forEach((b) => { const has = selected().some((r) => (runData(r.id)?.intervals || []).some((x) => x[b.dataset.metric] != null)); b.disabled = !has; }); }
+function renderTabs() { document.querySelectorAll("#pl-ind-tabs button").forEach((b) => { const has = selected().some((r) => (runData(r.id)?.intervals || []).some((x) => x[b.dataset.metric] != null)); b.disabled = !has; }); }
 
 /* ======================================================================== auth */
 async function updateAuthUi() {
@@ -930,6 +979,166 @@ $("pl-auth-form").addEventListener("submit", async (e) => {
   try { await S.src.signIn($("pl-email").value.trim()); $("pl-auth-msg").textContent = "Sign-in link sent. Open it on this device to continue."; $("pl-auth-send").disabled = true; }
   catch (err) { $("pl-auth-msg").textContent = err.message || "Sign-in failed. Check the address and try again."; }
 });
+
+
+/* ======================================================================== method comparison */
+const MC = { scenario: null, metric: "network_att", series: new Map(), events: new Map(), lineGeom: null, barsGeom: null, hover: null };
+const FINAL = { network_att: { label: "Network ATT", unit: "s", lower: true, fmt: (v) => nf1.format(v) }, traveller_att: { label: "Traveller ATT", unit: "s", lower: true, fmt: (v) => nf1.format(v) },
+  throughput: { label: "Throughput", unit: "veh", lower: false, fmt: (v) => nf0.format(v) }, network_awt: { label: "Network AWT", unit: "s", lower: true, fmt: (v) => nf1.format(v) } };
+const isProposed = (m) => /GNN-MPC|Method A/i.test(m || "");
+const isReference = (m) => /fixed/i.test(m || "");
+function mcRuns() {
+  const best = new Map();   // one run per (method, network, scenario, seed); a recording replaces its import
+  for (const r of S.runs) {
+    if (r.status !== "finished") continue;
+    const k = [r.method, r.network, r.scenario, r.sumo_seed].join("|"), cur = best.get(k);
+    if (!cur || (cur.source === "import" && r.source === "recorder")) best.set(k, r);
+  }
+  return [...best.values()];
+}
+const scenKey = (r) => `${r.network}|${r.scenario}`;
+function mcMethods(runs) {
+  const ms = [...new Set(runs.map((r) => r.method))];
+  const rank = (m) => (isProposed(m) ? 0 : isReference(m) ? 9 : 1);
+  return ms.sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
+}
+function mcStyle(methods) {
+  const out = {}; let k = 0; const pal = ["--blue", "--amber"];
+  for (const m of methods) {
+    if (isProposed(m)) out[m] = { color: css("--accent"), v: "--accent", dash: [], w: 2.4, cls: "", bar: "bar" };
+    else if (isReference(m)) out[m] = { color: css("--text"), v: "--text", dash: [2, 5], w: 1.8, cls: "dot", bar: "ref" };
+    else { const i = k++; out[m] = { color: css(pal[i % 2]), v: pal[i % 2], dash: i % 2 ? [7, 5] : [], w: 2, cls: i % 2 ? "dash" : "", bar: "bar" }; }
+  }
+  return out;
+}
+function niceScale(raw, ticks = 4) {   // round axis maximum and step to 1, 2, 2.5 or 5 × 10^n
+  const rough = Math.max(raw, 1e-9) / ticks, p = Math.pow(10, Math.floor(Math.log10(rough))), f = rough / p;
+  const step = (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p;
+  return { max: step * Math.ceil(raw / step), step };
+}
+const meanSd = (xs) => { const n = xs.length; if (!n) return null; const m = xs.reduce((a, b) => a + b, 0) / n; const sd = n > 1 ? Math.sqrt(xs.reduce((a, b) => a + (b - m) ** 2, 0) / (n - 1)) : 0; return { m, sd, n }; };
+
+async function renderMethods() {
+  const runs = mcRuns();
+  if (!runs.length) { $("pl-mc-sub").textContent = "Appears once finished runs are available."; $("pl-mc-scen").innerHTML = ""; return; }
+  const scen = [...new Set(runs.map(scenKey))].sort();
+  if (!MC.scenario || !scen.includes(MC.scenario)) MC.scenario = scen.includes(S.primary && scenKey(S.primary)) ? scenKey(S.primary) : scen[0];
+  const multiNet = new Set(runs.map((r) => r.network)).size > 1;
+  $("pl-mc-scen").innerHTML = scen.map((k) => { const [net, sc] = k.split("|"); return `<button role="tab" data-k="${esc(k)}" aria-selected="${k === MC.scenario}">${esc(multiNet ? `${net} ${sc}` : sc)}</button>`; }).join("");
+  const hidden = runs.filter((r) => r.public === false).length;
+  $("pl-mc-sub").textContent = `Finished runs, averaged over seeds. A run recorded with flow data replaces its imported copy, so no seed is counted twice.` + (hidden ? ` Team view: includes ${hidden} unpublished run${hidden > 1 ? "s" : ""}.` : "");
+  await loadMcSeries(runs.filter((r) => scenKey(r) === MC.scenario));
+  drawMc();
+}
+async function loadMcSeries(runs) {
+  await Promise.all(runs.map(async (r) => {
+    if (MC.series.has(r.id)) return;
+    const d = S.data.get(r.id);
+    MC.series.set(r.id, d ? d.intervals.map((x) => ({ t: x.t, queue_total: x.queue_total })) : await S.src.loadSeries(r.id));
+  }));
+  const any = runs[0];
+  if (any && !MC.events.has(MC.scenario)) MC.events.set(MC.scenario, scheduled(S.data.get(any.id)?.events || await S.src.loadEvents(any.id)));
+}
+function mcCanvas(id) {
+  const cv = $(id), r = cv.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
+  if (!r.width) return null;
+  if (cv.width !== Math.round(r.width * dpr) || cv.height !== Math.round(r.height * dpr)) { cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr); }
+  const ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, r.width, r.height);
+  ctx.font = `400 12px ${css("--font-primary")}`; return { ctx, W: r.width, H: r.height };
+}
+function drawMc() { drawMcLine(); drawMcBars(); }
+
+function drawMcLine() {
+  const c = mcCanvas("pl-mc-line"); if (!c) return; const { ctx, W, H } = c;
+  const runs = mcRuns().filter((r) => scenKey(r) === MC.scenario), methods = mcMethods(runs), st = mcStyle(methods);
+  const series = methods.map((m) => {
+    const rs = runs.filter((r) => r.method === m), byT = new Map();
+    for (const r of rs) for (const p of MC.series.get(r.id) || []) if (p.queue_total != null) { const a = byT.get(p.t) || []; a.push(p.queue_total); byT.set(p.t, a); }
+    const pts = [...byT.entries()].sort((a, b) => a[0] - b[0]).map(([t, xs]) => ({ t, ...meanSd(xs) }));
+    return { m, n: rs.length, pts, ...st[m] };
+  }).filter((x) => x.pts.length);
+  $("pl-mc-legend").innerHTML = series.map((x) => `<span style="--c:var(${x.v})"><i class="${x.cls}"></i>${esc(x.m)}${isProposed(x.m) ? " (proposed)" : isReference(x.m) ? " (reference)" : ""} · n = ${x.n}</span>`).join("");
+  const sc = MC.scenario.split("|")[1];
+  $("pl-mc-line-title").textContent = `Queued at signals over time · ${sc}`;
+  $("pl-mc-line-cap").textContent = "Mean over seeds; shaded band = ±1 SD; amber = incident period. Queue-based live indicator, not a paper metric. Fixed-Time is shown as the dotted reference.";
+  if (!series.length) { MC.lineGeom = null; ctx.fillStyle = css("--muted"); ctx.fillText("No interval data for this scenario.", 58, 30); return; }
+  const L = 58, R = 16, T = 16, B = 34, pw = W - L - R, ph = H - T - B, xMax = 3600;
+  const ns = niceScale(Math.max(1, ...series.flatMap((x) => x.pts.map((p) => p.m + p.sd))) * 1.05), yMax = ns.max;
+  const X = (t) => L + t / xMax * pw, Y = (v) => T + (yMax - v) / yMax * ph;
+  ctx.fillStyle = css("--amber"); ctx.globalAlpha = .1;
+  for (const i of MC.events.get(MC.scenario) || []) ctx.fillRect(X(i.start_time), T, X(Math.min(xMax, i.start_time + i.duration_time)) - X(i.start_time), ph);
+  ctx.globalAlpha = 1; ctx.strokeStyle = css("--border"); ctx.fillStyle = css("--muted"); ctx.textAlign = "right"; ctx.textBaseline = "middle";
+  for (let v = 0; v <= yMax + 1e-9; v += ns.step) { ctx.beginPath(); ctx.moveTo(L, Y(v)); ctx.lineTo(W - R, Y(v)); ctx.stroke(); ctx.fillText(nf0.format(v), L - 10, Y(v)); }
+  ctx.textAlign = "center"; ctx.textBaseline = "top";
+  for (let k = 0; k <= 6; k++) ctx.fillText(hms(xMax * k / 6).slice(0, 5), X(xMax * k / 6), T + ph + 10);
+  for (const x of series) {   // bands first
+    if (x.n < 2) continue;
+    ctx.fillStyle = x.color; ctx.globalAlpha = isReference(x.m) ? .07 : .14; ctx.beginPath();
+    x.pts.forEach((p, i) => (i ? ctx.lineTo(X(p.t), Y(p.m + p.sd)) : ctx.moveTo(X(p.t), Y(p.m + p.sd))));
+    [...x.pts].reverse().forEach((p) => ctx.lineTo(X(p.t), Y(Math.max(0, p.m - p.sd)))); ctx.closePath(); ctx.fill(); ctx.globalAlpha = 1;
+  }
+  for (const x of [...series].reverse()) { ctx.strokeStyle = x.color; ctx.lineWidth = x.w; ctx.setLineDash(x.dash); ctx.beginPath(); x.pts.forEach((p, i) => (i ? ctx.lineTo(X(p.t), Y(p.m)) : ctx.moveTo(X(p.t), Y(p.m)))); ctx.stroke(); }
+  ctx.setLineDash([]);
+  if (MC.hover != null) { ctx.strokeStyle = css("--muted"); ctx.setLineDash([3, 4]); ctx.beginPath(); ctx.moveTo(X(MC.hover), T); ctx.lineTo(X(MC.hover), T + ph); ctx.stroke(); ctx.setLineDash([]); }
+  MC.lineGeom = { L, R, W, pw, xMax, series };
+}
+
+function drawMcBars() {
+  const c = mcCanvas("pl-mc-bars"); if (!c) return; const { ctx, W, H } = c;
+  const runs = mcRuns().filter((r) => r.final && r.final[MC.metric] != null), key = MC.metric, F = FINAL[key];
+  const scen = [...new Set(runs.map(scenKey))].sort(), methods = mcMethods(runs), st = mcStyle(methods);
+  const multiNet = new Set(runs.map((r) => r.network)).size > 1;
+  $("pl-mc-legend2").innerHTML = methods.map((m) => `<span style="--c:var(${st[m].v})"><i class="${st[m].bar}"></i>${esc(m)}${isProposed(m) ? " (proposed)" : isReference(m) ? " (reference)" : ""}</span>`).join("");
+  const cell = {}; for (const k of scen) for (const m of methods) cell[`${k}|${m}`] = meanSd(runs.filter((r) => scenKey(r) === k && r.method === m).map((r) => r.final[key]));
+  const ns = Object.values(cell).filter(Boolean).map((x) => x.n), nMin = Math.min(...ns), nMax = Math.max(...ns);
+  $("pl-mc-bars-cap").textContent = `${F.label} (${F.unit}, ${F.lower ? "lower" : "higher"} is better), paper definitions from tripinfo. Bars = mean over seeds (n = ${nMin === nMax ? nMin : `${nMin}–${nMax}`}), whiskers = ±1 SD. Click a scenario to show it above.`;
+  // table
+  const best = {}; for (const k of scen) { const vals = methods.map((m) => cell[`${k}|${m}`]?.m).filter((v) => v != null); best[k] = vals.length > 1 ? (F.lower ? Math.min(...vals) : Math.max(...vals)) : null; }
+  $("pl-mc-thead").innerHTML = `<tr><th>${esc(F.label)}</th>${scen.map((k) => `<th>${esc(multiNet ? k.replace("|", " ") : k.split("|")[1])}</th>`).join("")}</tr>`;
+  $("pl-mc-tbody").innerHTML = methods.map((m) => `<tr><td><span style="display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:8px;vertical-align:-1px;${st[m].bar === "ref" ? `border:1.5px solid ${st[m].color}` : `background:${st[m].color}`}"></span>${esc(m)}</td>${scen.map((k) => { const x = cell[`${k}|${m}`]; return `<td class="v${x && x.m === best[k] ? " best" : ""}">${x ? `${F.fmt(x.m)} ± ${F.fmt(x.sd)} <span style="color:var(--muted)">(n = ${x.n})</span>` : "—"}</td>`; }).join("")}</tr>`).join("");
+  if (!scen.length) { MC.barsGeom = null; ctx.fillStyle = css("--muted"); ctx.fillText("No final results yet.", 58, 30); return; }
+  const L = 58, R = 16, T = 16, B = 34, pw = W - L - R, ph = H - T - B;
+  const ys = niceScale(Math.max(1, ...Object.values(cell).filter(Boolean).map((x) => x.m + x.sd)) * 1.05), yMax = ys.max, Y = (v) => T + (yMax - v) / yMax * ph;
+  const gw = pw / scen.length, inner = gw * .7, bw = inner / Math.max(1, methods.length);
+  scen.forEach((k, gi) => { if (k === MC.scenario) { ctx.fillStyle = css("--text"); ctx.globalAlpha = .045; ctx.fillRect(L + gi * gw + 4, T, gw - 8, ph); ctx.globalAlpha = 1; } });
+  ctx.strokeStyle = css("--border"); ctx.fillStyle = css("--muted"); ctx.textAlign = "right"; ctx.textBaseline = "middle"; ctx.lineWidth = 1;
+  for (let v = 0; v <= yMax + 1e-9; v += ys.step) { ctx.beginPath(); ctx.moveTo(L, Y(v)); ctx.lineTo(W - R, Y(v)); ctx.stroke(); ctx.fillText(nf0.format(v), L - 10, Y(v)); }
+  scen.forEach((k, gi) => {
+    const gx = L + gi * gw + (gw - inner) / 2;
+    ctx.fillStyle = css(k === MC.scenario ? "--text" : "--muted"); ctx.textAlign = "center"; ctx.textBaseline = "top";
+    ctx.fillText(multiNet ? k.replace("|", " ") : k.split("|")[1], L + gi * gw + gw / 2, T + ph + 10);
+    methods.forEach((m, mi) => {
+      const x = cell[`${k}|${m}`]; if (!x) return; const bx = gx + mi * bw + bw * .1, w = bw * .8, s = st[m];
+      if (s.bar === "ref") { ctx.strokeStyle = s.color; ctx.lineWidth = 1.5; ctx.strokeRect(bx + .75, Y(x.m) + .75, w - 1.5, Y(0) - Y(x.m) - 1.5); }
+      else { ctx.fillStyle = s.color; ctx.fillRect(bx, Y(x.m), w, Y(0) - Y(x.m)); }
+      if (x.n > 1) { const cx = bx + w / 2; ctx.strokeStyle = css("--text"); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(cx, Y(x.m + x.sd)); ctx.lineTo(cx, Y(Math.max(0, x.m - x.sd))); ctx.moveTo(cx - 4, Y(x.m + x.sd)); ctx.lineTo(cx + 4, Y(x.m + x.sd)); ctx.moveTo(cx - 4, Y(Math.max(0, x.m - x.sd))); ctx.lineTo(cx + 4, Y(Math.max(0, x.m - x.sd))); ctx.stroke(); }
+    });
+  });
+  MC.barsGeom = { L, gw, scen };
+}
+
+$("pl-mc-scen").addEventListener("click", async (e) => { const b = e.target.closest("button[data-k]"); if (!b) return; MC.scenario = b.dataset.k; await renderMethods(); });
+$("pl-mc-metric").addEventListener("click", (e) => { const b = e.target.closest("button[data-m]"); if (!b) return; MC.metric = b.dataset.m; $("pl-mc-metric").querySelectorAll("button").forEach((x) => x.setAttribute("aria-selected", String(x === b))); drawMcBars(); });
+$("pl-mc-bars-wrap").addEventListener("click", async (e) => { const g = MC.barsGeom; if (!g) return; const r = $("pl-mc-bars-wrap").getBoundingClientRect(); const i = Math.floor((e.clientX - r.left - g.L) / g.gw); if (i >= 0 && i < g.scen.length) { MC.scenario = g.scen[i]; await renderMethods(); } });
+$("pl-mc-open").addEventListener("click", async () => {
+  const runs = mcRuns().filter((r) => scenKey(r) === MC.scenario), seed = Math.min(...runs.map((r) => r.sumo_seed ?? 0));
+  const pick = mcMethods(runs).map((m) => runs.find((r) => r.method === m && (r.sumo_seed ?? 0) === seed)).filter(Boolean);
+  if (!pick.length) return;
+  await openRun(pick[0].id, pick.slice(1, 3).map((r) => r.id));
+  window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+});
+const mcw = $("pl-mc-line-wrap"), mctip = $("pl-mc-tip");
+mcw.addEventListener("mousemove", (e) => {
+  const g = MC.lineGeom; if (!g) return; const r = mcw.getBoundingClientRect(), mx = e.clientX - r.left;
+  if (mx < g.L || mx > g.W - g.R) { MC.hover = null; mctip.style.opacity = 0; drawMcLine(); return; }
+  const t = (mx - g.L) / g.pw * g.xMax;
+  const rows = g.series.map((x) => { let b = null; for (const p of x.pts) if (!b || Math.abs(p.t - t) < Math.abs(b.t - t)) b = p; return b ? `<div><span style="display:inline-block;width:10px;height:2px;background:${x.color};vertical-align:middle;margin-right:6px"></span>${esc(x.m)} <b class="num">${nf1.format(b.m)}</b> <span class="num" style="color:var(--muted)">± ${nf1.format(b.sd)} veh</span></div>` : ""; }).join("");
+  MC.hover = t; mctip.innerHTML = `<div class="num" style="color:var(--muted)">Sim time ${hms(t)}</div>${rows}`;
+  mctip.style.left = `${Math.min(mx + 14, r.width - mctip.offsetWidth - 8)}px`; mctip.style.top = "12px"; mctip.style.opacity = 1; drawMcLine();
+});
+mcw.addEventListener("mouseleave", () => { MC.hover = null; mctip.style.opacity = 0; drawMcLine(); });
+new ResizeObserver(() => drawMc()).observe($("pl-mc-line-wrap"));
+new ResizeObserver(() => drawMcBars()).observe($("pl-mc-bars-wrap"));
 
 /* ======================================================================== loop */
 function renderAll() { renderPlayer(); renderRail(); renderLog(); renderCompareChips(); renderCmp(); renderRuns(); renderTabs(); requestDraw(); }
