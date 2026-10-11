@@ -413,7 +413,7 @@ c12 56 515 2935 515 2951 0 16 -21 17 -332 15 l-332 -3 -103 -585 c-56 -322
 -13 90 -15 690 -15 l690 0 -5 -22 c-7 -31 -415 -2348 -415 -2359 0 -5 148 -9
 333 -9 l333 0 210 1193 210 1192 691 3 691 2 6 28 c13 63 96 547 96 559 0 11
 -305 13 -1714 13 l-1715 0 -10 -52z"/></g></svg>
-  <span>© ProLight · <span id="pl-version" style="opacity:.75">Dashboard 2.6</span> · <span id="pl-auth-state"></span> <button type="button" id="pl-auth-btn">Team sign-in</button></span>
+  <span>© ProLight · <span id="pl-version" style="opacity:.75">Dashboard 2.7</span> · <span id="pl-auth-state"></span> <button type="button" id="pl-auth-btn">Team sign-in</button></span>
 </footer>
 
 <dialog class="pl-dialog" id="pl-auth-dialog">
@@ -438,7 +438,7 @@ c12 56 515 2935 515 2951 0 16 -21 17 -332 15 l-332 -3 -103 -585 c-56 -322
    The anon / publishable key is safe to publish: row-level security (schema_v2.sql)
    only exposes public runs, plus all runs to signed-in team members.
    ===================================================================================== */
-const PROLIGHT_DASHBOARD_VERSION = "2.6";   // shown in the footer; bump on every upload
+const PROLIGHT_DASHBOARD_VERSION = "2.7";   // shown in the footer; bump on every upload
 const PROLIGHT_DASHBOARD = {
   supabaseUrl: "https://lbrjstfzdivhfhmtahop.supabase.co",
   supabaseAnonKey: "sb_publishable_gcRTOu0RgzcEwh3aQXCOJQ_KiY6krT6",
@@ -676,21 +676,31 @@ async function init() {
   const c = PROLIGHT_DASHBOARD;
   S.src = c.supabaseUrl && c.supabaseAnonKey && window.supabase ? new SupabaseSource(c.supabaseUrl, c.supabaseAnonKey) : new DemoSource();
   if (S.src.mode === "demo") $("pl-note").innerHTML = "<strong>Demo data.</strong> Synthetic values on a 4×4 grid, for previewing the dashboard. They are not experimental results.";
-  S.src.onAuth(() => refreshRuns().then(updateAuthUi));
+  requestAnimationFrame(loop);   // start drawing first: the map must never depend on how loading went
+  S.src.onAuth(() => refreshRuns().then(async () => { await updateAuthUi(); if (!S.primary) await openFromUrl(); }));
   updateAuthUi();   // not awaited: the run list never waits for the sign-in
   try {
     await withTimeout(refreshRuns(), 20000, "Loading the list of runs");
-    const q = new URLSearchParams(location.search);
-    const first = S.runs.find((r) => r.id === q.get("run")) || S.runs.find(isLive) || S.runs[0];
-    if (!first) return showEmpty("No runs to show yet. Runs appear here once the sync process uploads them and they are marked public, or after a team member signs in.");
-    await openRun(first.id, (q.get("compare") || "").split(",").filter(Boolean), q.get("t") != null ? +q.get("t") : null);
     S.src.subscribeRuns(() => refreshRuns());
+    await openFromUrl();
   } catch (e) {
     console.error(e); setStatus("error", "Connection failed");
     showEmpty(`<div>Could not load runs: ${esc(e.message || e)}.<br><br>Reload the page first. If this keeps happening, reset the saved sign-in and try again.<br><br><button class="pl-btn" type="button" id="pl-reset">Reset sign-in and reload</button></div>`);
     const b = $("pl-reset"); if (b) b.addEventListener("click", resetSignIn);
   }
-  requestAnimationFrame(loop);
+}
+/* Open the run named in the address (?run=…), else a live run, else the newest one. */
+async function openFromUrl() {
+  const q = new URLSearchParams(location.search);
+  const first = S.runs.find((r) => r.id === q.get("run")) || S.runs.find(isLive) || S.runs[0];
+  if (!first) {
+    showEmpty(S.session ? "No runs to show yet. Runs appear here once the sync process uploads them."
+                        : "No public experiments yet. Team members can sign in (footer) to see private runs.");
+    setStatus("connecting", "No runs"); return false;
+  }
+  $("pl-empty").classList.remove("show");
+  await openRun(first.id, (q.get("compare") || "").split(",").filter(Boolean), q.get("t") != null ? +q.get("t") : null);
+  return true;
 }
 function showEmpty(msg) { $("pl-empty").innerHTML = msg; $("pl-empty").classList.add("show"); }
 
@@ -1046,7 +1056,7 @@ function friendlyAuthError(err) {
 async function afterSignIn() {
   AUTH.step = "email"; $("pl-code").value = ""; $("pl-pass").value = "";
   await updateAuthUi(); $("pl-auth-dialog").close(); await refreshRuns();
-  if (!S.primary && S.runs.length) { $("pl-empty").classList.remove("show"); await openRun((S.runs.find(isLive) || S.runs[0]).id); }
+  if (!S.primary || !S.runs.find((r) => r.id === S.primary.id)) await openFromUrl();
 }
 $("pl-auth-btn").addEventListener("click", () => openAuthDialog());
 $("pl-team").addEventListener("click", () => openAuthDialog());
