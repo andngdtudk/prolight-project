@@ -420,6 +420,7 @@ c12 56 515 2935 515 2951 0 16 -21 17 -332 15 l-332 -3 -103 -585 c-56 -322
     <p id="pl-auth-msg">Team members can see private and running experiments. Enter your work e-mail and we will send a sign-in link.</p>
     <label class="sr" for="pl-email">E-mail</label>
     <input type="email" id="pl-email" required placeholder="name@dtu.dk" autocomplete="email">
+    <p style="font-size:13px;margin:-4px 0 16px">Trouble signing in? <button type="button" id="pl-auth-reset" style="background:none;border:0;padding:0;color:var(--accent-ink);text-decoration:underline;cursor:pointer;font-size:13px">Reset sign-in in this browser</button></p>
     <div class="row"><button class="pl-ghost" value="cancel" type="button" id="pl-auth-cancel">Close</button><button class="pl-ghost" type="button" id="pl-auth-out" hidden>Sign out</button><button class="pl-primary" id="pl-auth-send" type="submit">Send sign-in link</button></div>
   </form>
 </dialog>
@@ -473,7 +474,13 @@ const scen = (r) => `${r.scenario || "—"} · seed ${r.sumo_seed ?? "—"}`;
 
 /* ======================================================================== data sources */
 class SupabaseSource {
-  constructor(url, key) { this.sb = window.supabase.createClient(url, key); this.mode = "live"; this.netCache = new Map(); }
+  constructor(url, key) {
+    // Use a per-page lock instead of the browser-wide one: a stuck tab must never block other tabs.
+    let chain = Promise.resolve();
+    const pageLock = (_name, _timeout, fn) => { const run = chain.then(() => fn()); chain = run.catch(() => {}); return run; };
+    this.sb = window.supabase.createClient(url, key, { auth: { lock: pageLock, persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+    this.mode = "live"; this.netCache = new Map();
+  }
   async listRuns() { const { data, error } = await this.sb.from("runs").select("*").order("started_at", { ascending: false }).limit(60); if (error) throw error; return data; }
   async loadNetwork(id) {
     if (!id) return null; if (this.netCache.has(id)) return this.netCache.get(id);
@@ -660,7 +667,7 @@ async function init() {
   S.src = c.supabaseUrl && c.supabaseAnonKey && window.supabase ? new SupabaseSource(c.supabaseUrl, c.supabaseAnonKey) : new DemoSource();
   if (S.src.mode === "demo") $("pl-note").innerHTML = "<strong>Demo data.</strong> Synthetic values on a 4×4 grid, for previewing the dashboard. They are not experimental results.";
   S.src.onAuth(() => refreshRuns().then(updateAuthUi));
-  updateAuthUi();
+  updateAuthUi();   // not awaited: the run list never waits for the sign-in
   try {
     await withTimeout(refreshRuns(), 20000, "Loading the list of runs");
     const q = new URLSearchParams(location.search);
@@ -985,14 +992,15 @@ function renderTabs() { document.querySelectorAll("#pl-ind-tabs button").forEach
 /* ======================================================================== auth */
 async function updateAuthUi() {
   let s = null; try { s = await withTimeout(S.src.session(), 8000, "Reading the sign-in"); } catch (e) { console.warn(e); }
+  S.session = s;
   const email = s?.user?.email || "";
   $("pl-auth-state").textContent = s ? `Signed in as ${email}` : "";
   $("pl-auth-btn").textContent = s ? "Team account" : "Team sign-in";
   $("pl-team").hidden = !s; $("pl-team").textContent = `Team view · ${email}`;
   $("pl-team").title = "You can see private and running experiments";
 }
-async function openAuthDialog() {
-  const s = await S.src.session(), signed = !!s;
+function openAuthDialog() {
+  const s = S.session || null, signed = !!s;   // never wait on Supabase before showing the window
   $("pl-auth-title").textContent = signed ? "Team view" : "Team sign-in";
   $("pl-auth-msg").textContent = signed
     ? `You are signed in as ${s.user.email}. You can see private and running experiments as well as public ones.`
@@ -1004,8 +1012,10 @@ async function openAuthDialog() {
 $("pl-auth-btn").addEventListener("click", openAuthDialog);
 $("pl-team").addEventListener("click", openAuthDialog);
 $("pl-auth-cancel").addEventListener("click", () => $("pl-auth-dialog").close());
+$("pl-auth-reset").addEventListener("click", resetSignIn);
 $("pl-auth-out").addEventListener("click", async () => {
-  await S.src.signOut(); $("pl-auth-dialog").close(); await updateAuthUi(); await refreshRuns();
+  try { await withTimeout(S.src.signOut(), 8000, "Signing out"); } catch (e) { console.warn(e); return resetSignIn(); }
+  $("pl-auth-dialog").close(); await updateAuthUi(); await refreshRuns();
   if (!S.primary || !S.runs.find((r) => r.id === S.primary.id)) {   // the open run was private: leave it
     if (S.unsub) { S.unsub(); S.unsub = null; }
     S.compare = []; S.data.clear(); MC.series.clear();
