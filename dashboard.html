@@ -138,6 +138,11 @@ button,select,input{font-family:inherit}
 .pl-tabs button{border:0;background:transparent;color:var(--muted);font-size:13px;font-weight:500;padding:7px 14px;border-radius:var(--radius-button);cursor:pointer}
 .pl-tabs button[aria-selected="true"]{background:var(--accent);color:var(--on-accent)}
 .pl-tabs button[disabled]{opacity:.35;cursor:default}
+.pl-tabs[hidden],.pl-tabs button[hidden]{display:none}
+.pl-mc-legend button{display:inline-flex;align-items:center;gap:8px;background:none;border:0;padding:2px 0;color:var(--muted);font:inherit;font-size:13px;cursor:pointer}
+.pl-mc-legend button:hover{color:var(--text)}
+.pl-mc-legend button[aria-pressed="false"]{opacity:.45;text-decoration:line-through}
+.pl-mc-hint{color:var(--muted);font-size:12px;align-self:center}
 .pl-chart-wrap{position:relative;height:320px;margin:8px 12px 0;cursor:crosshair}
 .pl-chart-wrap canvas{position:absolute;inset:0;width:100%;height:100%}
 .pl-compare{display:flex;flex-wrap:wrap;gap:8px;padding:6px 28px 24px;align-items:center;font-size:13px;color:var(--muted)}
@@ -343,7 +348,10 @@ c12 56 515 2935 515 2951 0 16 -21 17 -332 15 l-332 -3 -103 -585 c-56 -322
   <section class="pl-mc" aria-labelledby="pl-mc-title">
     <div class="pl-mc-head">
       <div><h2 id="pl-mc-title">Method comparison</h2><p id="pl-mc-sub">Finished runs, averaged over seeds.</p></div>
-      <div class="pl-tabs" id="pl-mc-scen" role="tablist" aria-label="Scenario"></div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end">
+        <div class="pl-tabs" id="pl-mc-net" role="tablist" aria-label="Network" hidden></div>
+        <div class="pl-tabs" id="pl-mc-scen" role="tablist" aria-label="Scenario"></div>
+      </div>
     </div>
     <div class="pl-panel">
       <div class="pl-panel-head"><h2 id="pl-mc-line-title">Queued at signals over time</h2><button class="pl-ghost" id="pl-mc-open" type="button">Replay this scenario side by side</button></div>
@@ -352,13 +360,13 @@ c12 56 515 2935 515 2951 0 16 -21 17 -332 15 l-332 -3 -103 -585 c-56 -322
       <p class="pl-mc-cap" id="pl-mc-line-cap"></p>
     </div>
     <div class="pl-panel">
-      <div class="pl-panel-head"><h2>Final results by scenario</h2>
+      <div class="pl-panel-head"><h2 id="pl-mc-bars-title">Final results</h2>
         <div class="pl-tabs" id="pl-mc-metric" role="tablist" aria-label="Final metric">
           <button role="tab" data-m="network_att" aria-selected="true">Network ATT</button><button role="tab" data-m="traveller_att" aria-selected="false">Traveller ATT</button>
-          <button role="tab" data-m="throughput" aria-selected="false">Throughput</button><button role="tab" data-m="network_awt" aria-selected="false">Network AWT</button>
+          <button role="tab" data-m="throughput" aria-selected="false">Throughput</button><button role="tab" data-m="network_awt" aria-selected="false">Network AWT</button><button role="tab" data-m="never_inserted" aria-selected="false" hidden>Never inserted</button>
         </div></div>
       <div class="pl-mc-legend" id="pl-mc-legend2"></div>
-      <div class="pl-mc-chart pl-mc-bars" id="pl-mc-bars-wrap"><canvas id="pl-mc-bars" role="img" aria-label="Mean final metric per method and scenario with one standard deviation error bars; click a scenario to select it"></canvas></div>
+      <div class="pl-mc-chart" id="pl-mc-bars-wrap"><canvas id="pl-mc-bars" role="img" aria-label="Mean final metric per method for the selected scenario, with one standard deviation whiskers"></canvas></div>
       <p class="pl-mc-cap" id="pl-mc-bars-cap"></p>
       <div style="padding:0 28px 28px"><div class="pl-table-wrap"><table class="pl-table"><thead id="pl-mc-thead"></thead><tbody id="pl-mc-tbody"></tbody></table></div></div>
     </div>
@@ -366,6 +374,7 @@ c12 56 515 2935 515 2951 0 16 -21 17 -332 15 l-332 -3 -103 -585 c-56 -322
 
   <section class="pl-runs" aria-labelledby="pl-runs-title">
     <h2 id="pl-runs-title">Runs</h2>
+    <p class="pl-note" id="pl-runs-cap"></p>
     <div class="pl-table-wrap"><table class="pl-table">
       <thead><tr><th>Method</th><th>Network</th><th>Scenario</th><th>Seed</th><th>Status</th><th>Map</th><th>Network ATT</th><th>Throughput</th><th>Started</th></tr></thead>
       <tbody id="pl-runs-body"></tbody></table></div>
@@ -413,7 +422,7 @@ c12 56 515 2935 515 2951 0 16 -21 17 -332 15 l-332 -3 -103 -585 c-56 -322
 -13 90 -15 690 -15 l690 0 -5 -22 c-7 -31 -415 -2348 -415 -2359 0 -5 148 -9
 333 -9 l333 0 210 1193 210 1192 691 3 691 2 6 28 c13 63 96 547 96 559 0 11
 -305 13 -1714 13 l-1715 0 -10 -52z"/></g></svg>
-  <span>© ProLight · <span id="pl-version" style="opacity:.75">Dashboard 2.7</span> · <span id="pl-auth-state"></span> <button type="button" id="pl-auth-btn">Team sign-in</button></span>
+  <span>© ProLight · <span id="pl-version" style="opacity:.75">Dashboard 2.8</span> · <span id="pl-auth-state"></span> <button type="button" id="pl-auth-btn">Team sign-in</button></span>
 </footer>
 
 <dialog class="pl-dialog" id="pl-auth-dialog">
@@ -438,7 +447,7 @@ c12 56 515 2935 515 2951 0 16 -21 17 -332 15 l-332 -3 -103 -585 c-56 -322
    The anon / publishable key is safe to publish: row-level security (schema_v2.sql)
    only exposes public runs, plus all runs to signed-in team members.
    ===================================================================================== */
-const PROLIGHT_DASHBOARD_VERSION = "2.7";   // shown in the footer; bump on every upload
+const PROLIGHT_DASHBOARD_VERSION = "2.8";   // shown in the footer; bump on every upload
 const PROLIGHT_DASHBOARD = {
   supabaseUrl: "https://lbrjstfzdivhfhmtahop.supabase.co",
   supabaseAnonKey: "sb_publishable_gcRTOu0RgzcEwh3aQXCOJQ_KiY6krT6",
@@ -489,7 +498,16 @@ class SupabaseSource {
     this.sb = window.supabase.createClient(url, key, { auth: { lock: pageLock, persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
     this.mode = "live"; this.netCache = new Map();
   }
-  async listRuns() { const { data, error } = await this.sb.from("runs").select("*").order("started_at", { ascending: false }).limit(60); if (error) throw error; return data; }
+  /* All runs, in pages: the API returns at most 1,000 rows per request, and a fixed limit silently drops runs
+     (that dropped whole methods and scenarios from the method comparison in 2.7). */
+  async listRuns() {
+    let all = [], from = 0; const page = 1000;
+    for (;;) {
+      const { data, error } = await this.sb.from("runs").select("*").order("started_at", { ascending: false }).order("id").range(from, from + page - 1);
+      if (error) throw error; all = all.concat(data); if (data.length < page) break; from += page;
+    }
+    return all;
+  }
   async loadNetwork(id) {
     if (!id) return null; if (this.netCache.has(id)) return this.netCache.get(id);
     const { data, error } = await this.sb.from("networks").select("id,geojson,edge_order,edge_order_ref").eq("id", id).maybeSingle();
@@ -707,7 +725,14 @@ function showEmpty(msg) { $("pl-empty").innerHTML = msg; $("pl-empty").classList
 async function refreshRuns() {
   S.runs = await S.src.listRuns();
   for (const r of selected()) { const n = S.runs.find((x) => x.id === r.id); if (n) Object.assign(r, n); }
-  $("pl-run").innerHTML = S.runs.map((r) => `<option value="${esc(r.id)}">${esc(runName(r))} · ${esc(r.network || "")} ${esc(scen(r))}${isLive(r) ? " · live" : ""}${r.source === "recorder" ? " · with vehicles" : " · queues only"}</option>`).join("");
+  // Group the run list by network and scenario, methods in the comparison order, so hundreds of runs stay findable.
+  const groups = new Map();
+  const live = S.runs.filter(isLive);
+  for (const r of S.runs.filter((x) => !isLive(x)).sort((a, b) => String(a.network).localeCompare(String(b.network)) || String(a.scenario).localeCompare(String(b.scenario)) || methodRank(a.method) - methodRank(b.method) || String(a.method).localeCompare(String(b.method)) || (a.sumo_seed ?? 0) - (b.sumo_seed ?? 0))) {
+    const g = `${r.network || "—"} · ${r.scenario || "—"}`; if (!groups.has(g)) groups.set(g, []); groups.get(g).push(r);
+  }
+  const opt = (r) => `<option value="${esc(r.id)}">${esc(runName(r))} · ${esc(scen(r))}${isLive(r) ? " · live" : ""}${r.source === "recorder" ? " · with vehicles" : " · queues only"}</option>`;
+  $("pl-run").innerHTML = (live.length ? `<optgroup label="Running now">${live.map(opt).join("")}</optgroup>` : "") + [...groups.entries()].map(([g, rs]) => `<optgroup label="${esc(g)}">${rs.map(opt).join("")}</optgroup>`).join("");
   if (S.primary) $("pl-run").value = S.primary.id;
   renderRuns(); renderCompareChips(); refreshStatus();
   renderMethods().catch((e) => console.warn(e));
@@ -980,7 +1005,13 @@ function renderCmp() {
 }
 function renderRuns() {
   const b = $("pl-runs-body");
-  b.innerHTML = S.runs.length ? S.runs.map((r) => `<tr tabindex="0" data-id="${esc(r.id)}" aria-selected="${S.primary?.id === r.id}"><td>${esc(runName(r))}</td><td>${esc(r.network || "—")}</td><td>${esc(r.scenario || "—")}</td><td class="v">${r.sumo_seed ?? "—"}</td>
+  // Show the runs of the network and scenario selected in the method comparison (plus running and open runs).
+  const sel = MC.scenario;
+  const list = (sel ? S.runs.filter((r) => scenKey(r) === MC.scenario || isLive(r) || r.id === S.primary?.id) : S.runs)
+    .slice().sort((a, b) => (isLive(b) - isLive(a)) || methodRank(a.method) - methodRank(b.method) || String(a.method).localeCompare(String(b.method)) || (a.sumo_seed ?? 0) - (b.sumo_seed ?? 0));
+  if (sel) { const [net, sc] = MC.scenario.split("|"); $("pl-runs-cap").textContent = `${list.length} of ${S.runs.length} runs: ${NETWORK_LABEL[net] || net}, scenario ${sc}. Choose another network or scenario in the method comparison above.`; }
+  else $("pl-runs-cap").textContent = "";
+  b.innerHTML = list.length ? list.map((r) => `<tr tabindex="0" data-id="${esc(r.id)}" aria-selected="${S.primary?.id === r.id}"><td>${esc(runName(r))}</td><td>${esc(r.network || "—")}</td><td>${esc(r.scenario || "—")}</td><td class="v">${r.sumo_seed ?? "—"}</td>
     <td><span class="pl-badge" data-s="${esc(r.status)}"><i></i>${r.status === "running" ? "Running" : r.status === "failed" ? "Failed" : "Finished"}</span></td>
     <td>${r.source === "recorder" ? "Vehicles" : "<span style=\"color:var(--muted)\">Queues only</span>"}</td>
     <td class="v">${r.final ? nf1.format(r.final.network_att) + " s" : "—"}</td><td class="v">${r.final ? nf0.format(r.final.throughput) : "—"}</td><td>${rel(r.started_at)}</td></tr>`).join("") : `<tr><td colspan="9" style="color:var(--muted)">No runs yet.</td></tr>`;
@@ -1102,11 +1133,31 @@ $("pl-auth-form").addEventListener("submit", async (e) => {
 })();
 
 /* ======================================================================== method comparison */
-const MC = { scenario: null, metric: "network_att", series: new Map(), events: new Map(), lineGeom: null, barsGeom: null, hover: null };
+const MC = { network: null, scenario: null, metric: "network_att", hidden: new Set(), series: new Map(), events: new Map(), lineGeom: null, barsGeom: null, hover: null };
 const FINAL = { network_att: { label: "Network ATT", unit: "s", lower: true, fmt: (v) => nf1.format(v) }, traveller_att: { label: "Traveller ATT", unit: "s", lower: true, fmt: (v) => nf1.format(v) },
   throughput: { label: "Throughput", unit: "veh", lower: false, fmt: (v) => nf0.format(v) }, network_awt: { label: "Network AWT", unit: "s", lower: true, fmt: (v) => nf1.format(v) } };
+FINAL.never_inserted = { label: "Never inserted", unit: "veh", lower: true, fmt: (v) => nf0.format(v) };
 const isProposed = (m) => /GNN-MPC|Method A/i.test(m || "");
 const isReference = (m) => /fixed/i.test(m || "");
+const baseMethod = (m) => String(m || "").replace(/\s*\((?:N?I)\)\s*$/i, "").trim();
+/* Method colours and line styles: the ProLight method palette (Brand Identity v1.0, sec. 05). Journal (light) and
+   slides (dark) values differ only for Fixed-Time (Ink / Reference White) and IPPO (Slate / lighter Slate).
+   Every method also has its own line style, so colour is never the only cue. Colour follows the method, never its rank. */
+const METHOD_STYLE = {
+  "GNN-MPC":     { light: "#04B486", dark: "#04B486", dash: [],                 w: 2.8 },   // proposed: solid, heavier
+  "MaxPressure": { light: "#6B93B0", dark: "#6B93B0", dash: [],                 w: 1.8 },   // solid
+  "Fixed-Time":  { light: "#374151", dark: "#E5E7EB", dash: [1.5, 3.5],         w: 1.8 },   // reference: dotted
+  "IDQN":        { light: "#D5A65A", dark: "#D5A65A", dash: [7, 4],             w: 1.8 },   // dashed
+  "MPLight":     { light: "#8B7BB8", dark: "#8B7BB8", dash: [9, 3, 2, 3],       w: 1.8 },   // dash-dot
+  "IPPO":        { light: "#5B6573", dark: "#8B95A5", dash: [9, 3, 2, 3, 2, 3], w: 1.8 },   // dash-dot-dot
+  "FMA2C":       { light: "#B9A27E", dark: "#B9A27E", dash: [16, 5],            w: 1.8 },   // long dash
+  "CoSLight":    { light: "#7FA3A0", dark: "#7FA3A0", dash: [3, 3],             w: 1.8 }    // short dash
+};
+const NETWORK_LABEL = { grid4x4: "Grid 4×4", ingolstadt21: "Ingolstadt21" };
+const METHOD_ORDER = ["GNN-MPC", "MaxPressure", "IDQN", "MPLight", "IPPO", "FMA2C", "CoSLight"];   // the palette's order
+function methodRank(m) { if (isProposed(m)) return 0; if (isReference(m)) return 99; const i = METHOD_ORDER.indexOf(baseMethod(m)); return i >= 0 ? i : 50; }
+const styleKey = (m) => (isProposed(m) ? "GNN-MPC" : isReference(m) ? "Fixed-Time" : baseMethod(m));
+function methodColor(m) { const s = METHOD_STYLE[styleKey(m)]; return s ? s[document.body.classList.contains("dark") ? "dark" : "light"] : css("--muted"); }
 function mcRuns() {
   const best = new Map();   // one run per (method, network, scenario, seed); a recording replaces its import
   for (const r of S.runs) {
@@ -1119,17 +1170,20 @@ function mcRuns() {
 const scenKey = (r) => `${r.network}|${r.scenario}`;
 function mcMethods(runs) {
   const ms = [...new Set(runs.map((r) => r.method))];
-  const rank = (m) => (isProposed(m) ? 0 : isReference(m) ? 9 : 1);
-  return ms.sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
+  return ms.sort((a, b) => methodRank(a) - methodRank(b) || a.localeCompare(b));
 }
 function mcStyle(methods) {
-  const out = {}; let k = 0; const pal = ["--blue", "--amber"];
-  for (const m of methods) {
-    if (isProposed(m)) out[m] = { color: css("--accent"), v: "--accent", dash: [], w: 2.4, cls: "", bar: "bar" };
-    else if (isReference(m)) out[m] = { color: css("--text"), v: "--text", dash: [2, 5], w: 1.8, cls: "dot", bar: "ref" };
-    else { const i = k++; out[m] = { color: css(pal[i % 2]), v: pal[i % 2], dash: i % 2 ? [7, 5] : [], w: 2, cls: i % 2 ? "dash" : "", bar: "bar" }; }
-  }
+  const out = {};
+  for (const m of methods) { const s = METHOD_STYLE[styleKey(m)]; out[m] = { color: methodColor(m), dash: s ? s.dash : [3, 3], w: s ? s.w : 1.8, bar: isReference(m) ? "ref" : "bar" }; }
   return out;
+}
+/* Legend entry that doubles as a show/hide switch; the line sample shows the method's own dash. */
+function mcLegendItem(m, s, kind) {
+  const on = !MC.hidden.has(m);
+  const sample = kind === "line"
+    ? `<svg width="24" height="8" aria-hidden="true"><line x1="1" y1="4" x2="23" y2="4" stroke="${s.color}" stroke-width="${s.w}" stroke-dasharray="${s.dash.join(" ")}"/></svg>`
+    : `<i class="${s.bar}"></i>`;
+  return `<button type="button" data-m="${esc(m)}" aria-pressed="${on}" title="${on ? "Hide" : "Show"} ${esc(m)}" style="--c:${s.color}">${sample}${esc(m)}${isProposed(m) ? " (proposed)" : isReference(m) ? " (reference)" : ""}</button>`;
 }
 function niceScale(raw, ticks = 4) {   // round axis maximum and step to 1, 2, 2.5 or 5 × 10^n
   const rough = Math.max(raw, 1e-9) / ticks, p = Math.pow(10, Math.floor(Math.log10(rough))), f = rough / p;
@@ -1141,11 +1195,16 @@ const meanSd = (xs) => { const n = xs.length; if (!n) return null; const m = xs.
 async function renderMethods() {
   const runs = mcRuns();
   if (!runs.length) { $("pl-mc-sub").textContent = "Appears once finished runs are available."; $("pl-mc-scen").innerHTML = ""; return; }
-  const scen = [...new Set(runs.map(scenKey))].sort();
+  // One network at a time: networks differ in scale, scenarios and metrics, so they are never mixed in one chart.
+  const nets = [...new Set(runs.map((r) => r.network))].sort();
+  if (!MC.network || !nets.includes(MC.network)) MC.network = nets.includes(S.primary?.network) ? S.primary.network : nets[0];
+  $("pl-mc-net").hidden = nets.length < 2;
+  $("pl-mc-net").innerHTML = nets.map((n) => `<button role="tab" data-n="${esc(n)}" aria-selected="${n === MC.network}">${esc(NETWORK_LABEL[n] || n)}</button>`).join("");
+  const scen = [...new Set(runs.filter((r) => r.network === MC.network).map(scenKey))].sort();
   if (!MC.scenario || !scen.includes(MC.scenario)) MC.scenario = scen.includes(S.primary && scenKey(S.primary)) ? scenKey(S.primary) : scen[0];
-  const multiNet = new Set(runs.map((r) => r.network)).size > 1;
-  $("pl-mc-scen").innerHTML = scen.map((k) => { const [net, sc] = k.split("|"); return `<button role="tab" data-k="${esc(k)}" aria-selected="${k === MC.scenario}">${esc(multiNet ? `${net} ${sc}` : sc)}</button>`; }).join("");
-  const hidden = runs.filter((r) => r.public === false).length;
+  $("pl-mc-scen").innerHTML = scen.map((k) => `<button role="tab" data-k="${esc(k)}" aria-selected="${k === MC.scenario}">${esc(k.split("|")[1])}</button>`).join("");
+  renderRuns();
+  const hidden = runs.filter((r) => r.network === MC.network && r.public === false).length;
   $("pl-mc-sub").textContent = `Finished runs, averaged over seeds. A run recorded with flow data replaces its imported copy, so no seed is counted twice.` + (hidden ? ` Team view: includes ${hidden} unpublished run${hidden > 1 ? "s" : ""}.` : "");
   await loadMcSeries(runs.filter((r) => scenKey(r) === MC.scenario));
   drawMc();
@@ -1178,10 +1237,12 @@ function drawMcLine() {
     const pts = [...byT.entries()].sort((a, b) => a[0] - b[0]).map(([t, xs]) => ({ t, ...meanSd(xs) }));
     return { m, n: rs.length, pts, ...st[m] };
   }).filter((x) => x.pts.length);
-  $("pl-mc-legend").innerHTML = series.map((x) => `<span style="--c:var(${x.v})"><i class="${x.cls}"></i>${esc(x.m)}${isProposed(x.m) ? " (proposed)" : isReference(x.m) ? " (reference)" : ""} · n = ${x.n}</span>`).join("");
+  const nList = [...new Set(series.map((x) => x.n))];
+  $("pl-mc-legend").innerHTML = series.map((x) => mcLegendItem(x.m, x, "line")).join("") + `<span class="pl-mc-hint">Click a method to hide or show it</span>`;
   const sc = MC.scenario.split("|")[1];
-  $("pl-mc-line-title").textContent = `Queued at signals over time · ${sc}`;
-  $("pl-mc-line-cap").textContent = "Mean over seeds; shaded band = ±1 SD; amber = incident period. Queue-based live indicator, not a paper metric. Fixed-Time is shown as the dotted reference.";
+  $("pl-mc-line-title").textContent = `Queued at signals over time · ${NETWORK_LABEL[MC.network] || MC.network} ${sc}`;
+  $("pl-mc-line-cap").textContent = `Mean over seeds (n = ${nList.length === 1 ? nList[0] : nList.join("/")} per method); shaded band = ±1 SD; amber = incident period. Queue-based live indicator, not a paper metric. Fixed-Time is shown as the dotted reference.`;
+  series.splice(0, series.length, ...series.filter((x) => !MC.hidden.has(x.m)));
   if (!series.length) { MC.lineGeom = null; ctx.fillStyle = css("--muted"); ctx.fillText("No interval data for this scenario.", 58, 30); return; }
   const L = 58, R = 16, T = 16, B = 34, pw = W - L - R, ph = H - T - B, xMax = 3600;
   const ns = niceScale(Math.max(1, ...series.flatMap((x) => x.pts.map((p) => p.m + p.sd))) * 1.05), yMax = ns.max;
@@ -1206,39 +1267,52 @@ function drawMcLine() {
 
 function drawMcBars() {
   const c = mcCanvas("pl-mc-bars"); if (!c) return; const { ctx, W, H } = c;
-  const runs = mcRuns().filter((r) => r.final && r.final[MC.metric] != null), key = MC.metric, F = FINAL[key];
-  const scen = [...new Set(runs.map(scenKey))].sort(), methods = mcMethods(runs), st = mcStyle(methods);
-  const multiNet = new Set(runs.map((r) => r.network)).size > 1;
-  $("pl-mc-legend2").innerHTML = methods.map((m) => `<span style="--c:var(${st[m].v})"><i class="${st[m].bar}"></i>${esc(m)}${isProposed(m) ? " (proposed)" : isReference(m) ? " (reference)" : ""}</span>`).join("");
-  const cell = {}; for (const k of scen) for (const m of methods) cell[`${k}|${m}`] = meanSd(runs.filter((r) => scenKey(r) === k && r.method === m).map((r) => r.final[key]));
-  const ns = Object.values(cell).filter(Boolean).map((x) => x.n), nMin = Math.min(...ns), nMax = Math.max(...ns);
-  $("pl-mc-bars-cap").textContent = `${F.label} (${F.unit}, ${F.lower ? "lower" : "higher"} is better), paper definitions from tripinfo. Bars = mean over seeds (n = ${nMin === nMax ? nMin : `${nMin}–${nMax}`}), whiskers = ±1 SD. Click a scenario to show it above.`;
-  // table
-  const best = {}; for (const k of scen) { const vals = methods.map((m) => cell[`${k}|${m}`]?.m).filter((v) => v != null); best[k] = vals.length > 1 ? (F.lower ? Math.min(...vals) : Math.max(...vals)) : null; }
-  $("pl-mc-thead").innerHTML = `<tr><th>${esc(F.label)}</th>${scen.map((k) => `<th>${esc(multiNet ? k.replace("|", " ") : k.split("|")[1])}</th>`).join("")}</tr>`;
-  $("pl-mc-tbody").innerHTML = methods.map((m) => `<tr><td><span style="display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:8px;vertical-align:-1px;${st[m].bar === "ref" ? `border:1.5px solid ${st[m].color}` : `background:${st[m].color}`}"></span>${esc(m)}</td>${scen.map((k) => { const x = cell[`${k}|${m}`]; return `<td class="v${x && x.m === best[k] ? " best" : ""}">${x ? `${F.fmt(x.m)} ± ${F.fmt(x.sd)} <span style="color:var(--muted)">(n = ${x.n})</span>` : "—"}</td>`; }).join("")}</tr>`).join("");
-  if (!scen.length) { MC.barsGeom = null; ctx.fillStyle = css("--muted"); ctx.fillText("No final results yet.", 58, 30); return; }
-  const L = 58, R = 16, T = 16, B = 34, pw = W - L - R, ph = H - T - B;
-  const ys = niceScale(Math.max(1, ...Object.values(cell).filter(Boolean).map((x) => x.m + x.sd)) * 1.05), yMax = ys.max, Y = (v) => T + (yMax - v) / yMax * ph;
-  const gw = pw / scen.length, inner = gw * .7, bw = inner / Math.max(1, methods.length);
-  scen.forEach((k, gi) => { if (k === MC.scenario) { ctx.fillStyle = css("--text"); ctx.globalAlpha = .045; ctx.fillRect(L + gi * gw + 4, T, gw - 8, ph); ctx.globalAlpha = 1; } });
-  ctx.strokeStyle = css("--border"); ctx.fillStyle = css("--muted"); ctx.textAlign = "right"; ctx.textBaseline = "middle"; ctx.lineWidth = 1;
-  for (let v = 0; v <= yMax + 1e-9; v += ys.step) { ctx.beginPath(); ctx.moveTo(L, Y(v)); ctx.lineTo(W - R, Y(v)); ctx.stroke(); ctx.fillText(nf0.format(v), L - 10, Y(v)); }
-  scen.forEach((k, gi) => {
-    const gx = L + gi * gw + (gw - inner) / 2;
-    ctx.fillStyle = css(k === MC.scenario ? "--text" : "--muted"); ctx.textAlign = "center"; ctx.textBaseline = "top";
-    ctx.fillText(multiNet ? k.replace("|", " ") : k.split("|")[1], L + gi * gw + gw / 2, T + ph + 10);
-    methods.forEach((m, mi) => {
-      const x = cell[`${k}|${m}`]; if (!x) return; const bx = gx + mi * bw + bw * .1, w = bw * .8, s = st[m];
-      if (s.bar === "ref") { ctx.strokeStyle = s.color; ctx.lineWidth = 1.5; ctx.strokeRect(bx + .75, Y(x.m) + .75, w - 1.5, Y(0) - Y(x.m) - 1.5); }
-      else { ctx.fillStyle = s.color; ctx.fillRect(bx, Y(x.m), w, Y(0) - Y(x.m)); }
-      if (x.n > 1) { const cx = bx + w / 2; ctx.strokeStyle = css("--text"); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(cx, Y(x.m + x.sd)); ctx.lineTo(cx, Y(Math.max(0, x.m - x.sd))); ctx.moveTo(cx - 4, Y(x.m + x.sd)); ctx.lineTo(cx + 4, Y(x.m + x.sd)); ctx.moveTo(cx - 4, Y(Math.max(0, x.m - x.sd))); ctx.lineTo(cx + 4, Y(Math.max(0, x.m - x.sd))); ctx.stroke(); }
-    });
+  const netRuns = mcRuns().filter((r) => r.network === MC.network && r.final);
+  // "Never inserted" only where vehicles can be held outside the network; on the grid it is 0 throughout.
+  const showNi = netRuns.some((r) => (r.final.never_inserted ?? 0) > 0), niBtn = $("pl-mc-metric").querySelector('[data-m="never_inserted"]');
+  if (niBtn) niBtn.hidden = !showNi;
+  if (MC.metric === "never_inserted" && !showNi) { MC.metric = "network_att"; $("pl-mc-metric").querySelectorAll("button").forEach((x) => x.setAttribute("aria-selected", String(x.dataset.m === MC.metric))); }
+  const key = MC.metric, F = FINAL[key], runs = netRuns.filter((r) => r.final[key] != null);
+  const scen = [...new Set(runs.map(scenKey))].sort(), allMethods = mcMethods(runs), st = mcStyle(allMethods);
+  const cell = {}; for (const k of scen) for (const m of allMethods) cell[`${k}|${m}`] = meanSd(runs.filter((r) => scenKey(r) === k && r.method === m).map((r) => r.final[key]));
+  $("pl-mc-legend2").innerHTML = allMethods.map((m) => mcLegendItem(m, st[m], "bar")).join("") + `<span class="pl-mc-hint">Click a method to hide or show it</span>`;
+  // table: every scenario of this network
+  const best = {}; for (const k of scen) { const vals = allMethods.map((m) => cell[`${k}|${m}`]?.m).filter((v) => v != null); best[k] = vals.length > 1 ? (F.lower ? Math.min(...vals) : Math.max(...vals)) : null; }
+  $("pl-mc-thead").innerHTML = `<tr><th>${esc(F.label)} (${esc(F.unit)})</th>${scen.map((k) => `<th>${esc(k.split("|")[1])}</th>`).join("")}</tr>`;
+  $("pl-mc-tbody").innerHTML = allMethods.map((m) => `<tr><td><span style="display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:8px;vertical-align:-1px;${st[m].bar === "ref" ? `border:1.5px solid ${st[m].color}` : `background:${st[m].color}`}"></span>${esc(m)}</td>${scen.map((k) => { const x = cell[`${k}|${m}`]; return `<td class="v${x && x.m === best[k] ? " best" : ""}">${x ? `${F.fmt(x.m)} ± ${F.fmt(x.sd)} <span style="color:var(--muted)">(n = ${x.n})</span>` : "—"}</td>`; }).join("")}</tr>`).join("");
+  // chart: the selected scenario, one bar per method in the fixed order, each bar labelled directly
+  const k = MC.scenario, sc = k ? k.split("|")[1] : "";
+  $("pl-mc-bars-title").textContent = `Final results · ${NETWORK_LABEL[MC.network] || MC.network} ${sc}`;
+  const rows = allMethods.filter((m) => !MC.hidden.has(m) && cell[`${k}|${m}`]);
+  const nsv = rows.map((m) => cell[`${k}|${m}`].n), nMin = Math.min(...nsv), nMax = Math.max(...nsv);
+  $("pl-mc-bars-cap").textContent = rows.length ? `${F.label} in ${sc} (${F.unit}, ${F.lower ? "lower" : "higher"} is better), paper definitions from tripinfo. Bars = mean over seeds (n = ${nMin === nMax ? nMin : `${nMin}–${nMax}`}), whiskers = ±1 SD. Every scenario is in the table below.` : "";
+  MC.barsGeom = null;
+  if (!rows.length) { ctx.fillStyle = css("--muted"); ctx.fillText("No final results for this scenario.", 20, 30); return; }
+  const LBL = 190, VAL = 140, T = 10, B = 30, pw = W - LBL - VAL, rowH = Math.min(34, (H - T - B) / rows.length), bh = Math.min(16, rowH * .55);
+  const xs = niceScale(Math.max(1, ...rows.map((m) => cell[`${k}|${m}`].m + cell[`${k}|${m}`].sd)) * 1.02), X = (v) => LBL + v / xs.max * pw;
+  const yTop = T, yBot = T + rows.length * rowH;
+  ctx.strokeStyle = css("--border"); ctx.lineWidth = 1; ctx.fillStyle = css("--muted"); ctx.textAlign = "center"; ctx.textBaseline = "top";
+  for (let v = 0; v <= xs.max + 1e-9; v += xs.step) { ctx.beginPath(); ctx.moveTo(X(v), yTop); ctx.lineTo(X(v), yBot); ctx.stroke(); ctx.fillText(xs.step >= 1 ? nf0.format(v) : F.fmt(v), X(v), yBot + 8); }
+  rows.forEach((m, i) => {
+    const x = cell[`${k}|${m}`], s = st[m], cy = yTop + i * rowH + rowH / 2, y0 = cy - bh / 2;
+    ctx.fillStyle = css(isProposed(m) ? "--text" : "--muted"); ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    ctx.font = `${isProposed(m) ? 500 : 400} 13px ${css("--font-primary")}`; ctx.fillText(m, LBL - 14, cy);
+    if (s.bar === "ref") { ctx.strokeStyle = s.color; ctx.lineWidth = 1.5; ctx.setLineDash([3, 3]); ctx.strokeRect(LBL + .75, y0 + .75, X(x.m) - LBL - 1.5, bh - 1.5); ctx.setLineDash([]); }
+    else { ctx.fillStyle = s.color; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(LBL, y0, X(x.m) - LBL, bh, [0, 4, 4, 0]) : ctx.rect(LBL, y0, X(x.m) - LBL, bh); ctx.fill(); }
+    if (x.n > 1) { ctx.strokeStyle = css("--text"); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(X(Math.max(0, x.m - x.sd)), cy); ctx.lineTo(X(x.m + x.sd), cy); ctx.moveTo(X(Math.max(0, x.m - x.sd)), cy - 4); ctx.lineTo(X(Math.max(0, x.m - x.sd)), cy + 4); ctx.moveTo(X(x.m + x.sd), cy - 4); ctx.lineTo(X(x.m + x.sd), cy + 4); ctx.stroke(); }
+    ctx.fillStyle = css("--text"); ctx.textAlign = "left"; ctx.font = `400 13px ${css("--font-primary")}`;
+    ctx.fillText(`${F.fmt(x.m)} ± ${F.fmt(x.sd)}`, X(x.m + x.sd) + 10, cy);
   });
-  MC.barsGeom = { L, gw, scen };
+  ctx.font = `400 12px ${css("--font-primary")}`;
 }
 
 $("pl-mc-scen").addEventListener("click", async (e) => { const b = e.target.closest("button[data-k]"); if (!b) return; MC.scenario = b.dataset.k; await renderMethods(); });
+$("pl-mc-net").addEventListener("click", async (e) => { const b = e.target.closest("button[data-n]"); if (!b || b.dataset.n === MC.network) return; MC.network = b.dataset.n; MC.scenario = null; await renderMethods(); });
+for (const id of ["pl-mc-legend", "pl-mc-legend2"]) $(id).addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-m]"); if (!b) return;
+  if (MC.hidden.has(b.dataset.m)) MC.hidden.delete(b.dataset.m); else MC.hidden.add(b.dataset.m);
+  drawMc();
+});
 $("pl-mc-metric").addEventListener("click", (e) => { const b = e.target.closest("button[data-m]"); if (!b) return; MC.metric = b.dataset.m; $("pl-mc-metric").querySelectorAll("button").forEach((x) => x.setAttribute("aria-selected", String(x === b))); drawMcBars(); });
 $("pl-mc-bars-wrap").addEventListener("click", async (e) => { const g = MC.barsGeom; if (!g) return; const r = $("pl-mc-bars-wrap").getBoundingClientRect(); const i = Math.floor((e.clientX - r.left - g.L) / g.gw); if (i >= 0 && i < g.scen.length) { MC.scenario = g.scen[i]; await renderMethods(); } });
 $("pl-mc-open").addEventListener("click", async () => {
