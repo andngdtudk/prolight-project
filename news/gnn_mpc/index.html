@@ -226,7 +226,7 @@
 </tbody></table>
 </div>
 <figure class="blog-figure" id="fig-grid_ex2">
-  <img src="/assets/blog/gnn-mpc/fig05_grid_predefined.png" alt="Grid, predefined incidents: network ATT against (a) the location of a two-lane, 24-min incident, (b) the duration of a t">
+  <img src="/assets/blog/fig05_grid_predefined.png" alt="Grid, predefined incidents: network ATT against (a) the location of a two-lane, 24-min incident, (b) the duration of a t">
   <figcaption>Figure W1. Grid, predefined incidents: network ATT against (a) the location of a two-lane, 24-min incident, (b) the duration of a two-lane incident (0: none) and (c) the number of blocked lanes of three for 24 min. Mean over five trials with 95% Student-t interval.</figcaption>
 </figure>
 <div class="blog-table-wrap" id="tab-app_grid_ex2_att">
@@ -500,7 +500,7 @@
 </tbody></table>
 </div>
 <figure class="blog-figure" id="fig-hidden_queue">
-  <img src="/assets/blog/gnn-mpc/fig_hidden_queue.png" alt="Share of stopped vehicles in the upstream zones over the evaluation window on Ingolstadt (trailing five-decision mean ov">
+  <img src="/assets/blog/fig_hidden_queue.png" alt="Share of stopped vehicles in the upstream zones over the evaluation window on Ingolstadt (trailing five-decision mean ov">
   <figcaption>Figure W2. Share of stopped vehicles in the upstream zones over the evaluation window on Ingolstadt (trailing five-decision mean over the 25 runs of S1–S5).</figcaption>
 </figure>
       </section>
@@ -657,11 +657,11 @@
         <h2>Learned dynamics model</h2>
         <p>Feature construction, prediction errors of all targets, and the behavior of the mixture-of-experts gate.</p>
 <figure class="blog-figure" id="fig-net_level_node">
-  <img src="/assets/blog/gnn-mpc/Network_GNN_features_prolight.png" alt="Construction of the network-level node feature x^net_v(t), comprising lagged dynamics, incident descriptors, and static ">
+  <img src="/assets/blog/Network_GNN_features_prolight.png" alt="Construction of the network-level node feature x^net_v(t), comprising lagged dynamics, incident descriptors, and static ">
   <figcaption>Figure W3. Construction of the network-level node feature x^net_v(t), comprising lagged dynamics, incident descriptors, and static context.</figcaption>
 </figure>
 <figure class="blog-figure" id="fig-lane_level_node">
-  <img src="/assets/blog/gnn-mpc/Edited_feature_edge_prolight.png" alt="Construction of the lane-level node feature x^lane_ell(t), comprising lagged lane dynamics, lane incident descriptors, l">
+  <img src="/assets/blog/Edited_feature_edge_prolight.png" alt="Construction of the lane-level node feature x^lane_ell(t), comprising lagged lane dynamics, lane incident descriptors, l">
   <figcaption>Figure W4. Construction of the lane-level node feature x^lane_ell(t), comprising lagged lane dynamics, lane incident descriptors, lane static context, and network-level predictive context.</figcaption>
 </figure>
 <div class="blog-table-wrap" id="tab-input_sizes">
@@ -763,11 +763,11 @@
 <h3>Gate behavior</h3>
 <p>The gate γ of the network-level mixture of experts is trained through the prediction loss alone, without incident labels (Section IV of the main paper), so whether it separates the regimes is an empirical question; <a href="#fig-gate">Figure W5</a> shows that it does. The one-step γ has a median of 0.0002 (grid) and 0.0007 (Ingolstadt) on normal intersections and of 0.9995 and 1.000 on incident-affected ones, exceeding 0.5 in 5% and 12% of the normal samples against 63% and 90% of the incident-affected ones (<a href="#fig-gate">Figure W5</a>a, d). The gate does not copy the incident flag: aligned to onset, the median γ rises from near zero over 200–300 s, consistent with the gradual build-up of the queue behind the incident (<a href="#fig-gate">Figure W5</a>b, e), whereas at clearance it falls from 0.99 to about zero within two to four steps (<a href="#fig-gate">Figure W5</a>c, f). Not every incident engages the incident expert: γ stays below 0.5 throughout 14 of the 38 grid test incidents, all of them long, and 1 of 18 on Ingolstadt; which expert serves an incident is decided by the prediction loss, and the experts' names describe what they predominantly handle rather than a constraint imposed in training.</p>
 <figure class="blog-figure" id="fig-gate">
-  <img src="/assets/blog/gnn-mpc/fig09_gate-moe.png" alt="Gate value γ of the network-level mixture of experts (γ = 1: incident expert only) on the test episodes, grid (top) and ">
+  <img src="/assets/blog/fig09_gate-moe.png" alt="Gate value γ of the network-level mixture of experts (γ = 1: incident expert only) on the test episodes, grid (top) and ">
   <figcaption>Figure W5. Gate value γ of the network-level mixture of experts (γ = 1: incident expert only) on the test episodes, grid (top) and Ingolstadt (bottom). (a, d) One-step γ on normal and incident-affected intersections; bar: interquartile range, tick: median. (b, e) γ aligned to incident onset and (c, f) to clearance, for incidents that clear within the episode; thin lines: single incidents, thick: median, dashed: mean, each step counted only while it belongs to the aligned incident. Grid: 20 episodes, 38 incidents (17 cleared); Ingolstadt: 2,000 sampled states from 40 episodes in (d), 16 episodes with 18 incidents (13 cleared) in (e, f). Shaded amber: incident period.</figcaption>
 </figure>
 <figure class="blog-figure" id="fig-incident_onestep">
-  <img src="/assets/blog/gnn-mpc/fig10_incident-onestep.png" alt="Observed queue and one-step prediction of the lane-level model on two incident lanes of one Ingolstadt test episode unde">
+  <img src="/assets/blog/fig10_incident-onestep.png" alt="Observed queue and one-step prediction of the lane-level model on two incident lanes of one Ingolstadt test episode unde">
   <figcaption>Figure W6. Observed queue and one-step prediction of the lane-level model on two incident lanes of one Ingolstadt test episode under MaxPressure control (single episode). (a) A 470 s incident through which traffic continues to pass; (b) a lane fully blocked for 1,490 s. Shaded amber: incident period. On the blocked lane the observed queue grows in steps and reaches 16 veh before clearance; the one-step prediction follows the onset and the clearance but exceeds the observed queue throughout the incident (mean signed error +3.6 veh), whereas on the passable lane it falls short of it (−1.5 veh).</figcaption>
 </figure>
       </section>
@@ -793,15 +793,15 @@
 </tbody></table>
 </div>
 <figure class="blog-figure" id="fig-lc_grid">
-  <img src="/assets/blog/gnn-mpc/grid_4x4_training.png" alt="Learning curves of the RL baselines on the grid network: network ATT per training episode and running mean over 5% of th">
+  <img src="/assets/blog/grid_4x4_training.png" alt="Learning curves of the RL baselines on the grid network: network ATT per training episode and running mean over 5% of th">
   <figcaption>Figure W7. Learning curves of the RL baselines on the grid network: network ATT per training episode and running mean over 5% of the episodes, trained without (NI) and with (I) incidents. The ATT is measured on the training episodes themselves; episodes of the I condition contain incidents and those of the NI condition do not, so that only the course of the two curves, not their level, is comparable. The conditions are compared on the evaluation scenarios in Sec. S4 of the Supplementary Material.</figcaption>
 </figure>
 <figure class="blog-figure" id="fig-lc_ingol">
-  <img src="/assets/blog/gnn-mpc/ingolstadt21_training.png" alt="Learning curves of the RL baselines on the Ingolstadt network, as in Figure W7. The curve of IDQN (I) is taken from a re">
+  <img src="/assets/blog/ingolstadt21_training.png" alt="Learning curves of the RL baselines on the Ingolstadt network, as in Figure W7. The curve of IDQN (I) is taken from a re">
   <figcaption>Figure W8. Learning curves of the RL baselines on the Ingolstadt network, as in <a href="#fig-lc_grid">Figure W7</a>. The curve of IDQN (I) is taken from a re-run with the same seed and configuration, because the per-episode records of the evaluated run were not retained; the evaluated policy is that of the original run.</figcaption>
 </figure>
 <figure class="blog-figure" id="fig-inc_location">
-  <img src="/assets/blog/gnn-mpc/incident_location_grid.png" alt="Locations of the predefined incidents on the grid network.">
+  <img src="/assets/blog/incident_location_grid.png" alt="Locations of the predefined incidents on the grid network.">
   <figcaption>Figure W9. Locations of the predefined incidents on the grid network.</figcaption>
 </figure>
       </section>
